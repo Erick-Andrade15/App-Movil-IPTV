@@ -276,6 +276,151 @@ class Repository {
     }
   }
 
+  //CARGAR LOS CANALES - ACTUALIZAR
+  Future<bool> loadChannels(bool isAllUpdate) async {
+    try {
+      String jsonChannel, jsonCategory;
+      EasyLoading.show(status: 'Loading...\nThe Channels 📺');
+
+      if (!isAllUpdate) {
+        var jsonUserData =
+            await storageService.readSecureData('SessionJsonUser');
+        userData = ClsUsers.fromJson(jsonDecode(jsonUserData!));
+        if (userData.userInfo == null) {
+          EasyLoading.showError('Failed to Update Channels.');
+          return false;
+        }
+      }
+      //ELIMINAR CATEGORIA TVLIVE
+      Globals.globalCategoryList
+          .removeWhere((category) => category.type == 'TVLive');
+      //BUSCAR LAS CATEGORIAS DE TV LIVE
+      List<ClsCategory> categoryTV =
+          await getCategories("get_live_categories", "TVLive");
+      //AGREGAR LAS CATEGORIAS DE TV LIVE
+      Globals.globalCategoryList.addAll(categoryTV);
+      jsonCategory = jsonEncode(Globals.globalCategoryList);
+
+      //AGREGAMOS LOS CANALES
+      List<ClsChannel> channels = await getLiveChannels();
+      jsonChannel = jsonEncode(channels);
+
+      await Future.wait([
+        storageService.writeSecureData('SessionJsonChannels', jsonChannel),
+        storageService.writeSecureData('SessionJsonCategory', jsonCategory),
+      ]);
+
+      await Globals.loadGlobalsFromStorage();
+      EasyLoading.showSuccess('Great Success!');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //CARGAR LAS PELICULAS - ACTUALIZAR
+  Future<bool> loadMovies(bool isAllUpdate) async {
+    try {
+      String jsonMovies, jsonCategory;
+      EasyLoading.show(status: 'Loading...\nThe Movies 🎥');
+      if (!isAllUpdate) {
+        var jsonUserData =
+            await storageService.readSecureData('SessionJsonUser');
+        userData = ClsUsers.fromJson(jsonDecode(jsonUserData!));
+        if (userData.userInfo == null) {
+          EasyLoading.showError('Failed to Update Movies.');
+          return false;
+        }
+      }
+      //ELIMINAR CATEGORIA MOVIES
+      Globals.globalCategoryList
+          .removeWhere((category) => category.type == 'Movies');
+      //BUSCAR LAS CATEGORIAS DE MOVIES
+      List<ClsCategory> categoryMovies =
+          await getCategories("get_vod_categories", "Movies");
+      //AGREGAR LAS CATEGORIAS DE MOVIES
+      Globals.globalCategoryList.addAll(categoryMovies);
+      jsonCategory = jsonEncode(Globals.globalCategoryList);
+
+      //AGREGAMOS LAS PELICULAS
+      List<ClsMovies> movies = await getAllMovies();
+      jsonMovies = jsonEncode(movies);
+
+      await Future.wait([
+        storageService.writeSecureData('SessionJsonMovies', jsonMovies),
+        storageService.writeSecureData('SessionJsonCategory', jsonCategory),
+      ]);
+
+      await Globals.loadGlobalsFromStorage();
+      EasyLoading.showSuccess('Great Success!');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //CARGAR LAS SERIES - ACTUALIZAR
+  Future<bool> loadTvShows(bool isAllUpdate) async {
+    try {
+      String jsonTvShows, jsonCategory;
+      EasyLoading.show(status: 'Loading...\nThe Tv Shows 📺🎬');
+      if (!isAllUpdate) {
+        var jsonUserData =
+            await storageService.readSecureData('SessionJsonUser');
+        userData = ClsUsers.fromJson(jsonDecode(jsonUserData!));
+        if (userData.userInfo == null) {
+          EasyLoading.showError('Failed to Update Tv Shows.');
+          return false;
+        }
+      }
+
+      //ELIMINAR CATEGORIA TVSHOWS
+      Globals.globalCategoryList
+          .removeWhere((category) => category.type == 'Series');
+      //BUSCAR LAS CATEGORIAS DE SERIES
+      List<ClsCategory> categorySeries =
+          await getCategories("get_series_categories", "Series");
+      //AGREGAR LAS CATEGORIAS DE SERIES
+      Globals.globalCategoryList.addAll(categorySeries);
+      jsonCategory = jsonEncode(Globals.globalCategoryList);
+
+      //AGREGAMOS LAS SERIES
+      List<ClsTvShows> tvShows = await getAllSeries();
+      jsonTvShows = jsonEncode(tvShows);
+
+      //CATEGORY
+      jsonCategory = jsonEncode(Globals.globalCategoryList);
+
+      await Future.wait([
+        storageService.writeSecureData('SessionJsonTvShows', jsonTvShows),
+        storageService.writeSecureData('SessionJsonCategory', jsonCategory),
+      ]);
+
+      await Globals.loadGlobalsFromStorage();
+      EasyLoading.showSuccess('Great Success!');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+//ACTUALIZAR CONTENIDO
+  Future<void> loadAllM3u() async {
+    EasyLoading.show(status: 'Loading...\nThe channels, Movies\nand Tv shows');
+
+    try {
+      bool channelsLoaded = await loadChannels(true);
+      bool moviesLoaded = await loadMovies(true);
+      bool tvShowsLoaded = await loadTvShows(true);
+
+      if (!channelsLoaded && !moviesLoaded && !tvShowsLoaded) {
+        EasyLoading.showError('Error loading data');
+      }
+    } catch (error) {
+      EasyLoading.showError('An error occurred');
+    }
+  }
+
 //AGREGAR LAS BANDERAS DE LOS PAISES EN LA CATEGORIA
   List<ClsCategory> addFlagsTVLive(List<ClsCategory> categories) {
     Map<String, String> countryFlags = {
