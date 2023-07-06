@@ -86,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTapFuncion: () {
                           Navigator.of(context).pushNamed(RoutesName.userinfo);
                         },
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMediumDark,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -115,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Navigator.of(context)
                               .pushNamed(RoutesName.clearcache);
                         },
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMedium,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -190,72 +190,64 @@ class _SettingsPageState extends State<SettingsPage> {
                   StaggeredGridTile.count(
                       crossAxisCellCount: 2,
                       mainAxisCellCount: 3,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context)
-                              .pushNamed(RoutesName.controlparental);
-                        },
-                        child: SettingCard(
-                          onTapFuncion: () {
-                            Navigator.of(context)
-                                .pushNamed(RoutesName.userinfo);
-                          },
-                          colorBg: Const.colorPurpleAccent,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.lock_outline,
-                                size: 50,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(
-                                height: 12,
-                              ),
-                              RichText(
-                                text: const TextSpan(
-                                    text: "Parental\n",
-                                    style: TextStyle(
-                                        color: Colors.white70, fontSize: 16),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                          text: "Control",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 25,
-                                              fontWeight: FontWeight.bold))
-                                    ]),
-                                textAlign: TextAlign.center,
-                              )
-                            ],
-                          ),
-                        ),
-                      )),
-                  //INFO SPORT
-                  StaggeredGridTile.count(
-                      crossAxisCellCount: 2,
-                      mainAxisCellCount: 1,
                       child: SettingCard(
                         onTapFuncion: () {
-                          Navigator.of(context).pushNamed(RoutesName.catchup);
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'Coming Soon',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                content: const Text(
+                                  'This feature will be available soon.',
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
-                        colorBg: Const.colorPurpleAccent,
-                        child: const Column(
+                        colorBg: Const.colorPurpleMedium,
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.sports_soccer_outlined,
+                            const Icon(
+                              Icons.lock_outline,
                               size: 50,
                               color: Colors.white,
                             ),
-                            Text(
-                              "Info Sport",
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 18),
+                            const SizedBox(
+                              height: 12,
                             ),
+                            RichText(
+                              text: const TextSpan(
+                                  text: "Parental\n",
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 16),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: "Control",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold))
+                                  ]),
+                              textAlign: TextAlign.center,
+                            )
                           ],
                         ),
                       )),
+
                   //SPEED TEST
                   StaggeredGridTile.count(
                       crossAxisCellCount: 2,
@@ -264,7 +256,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTapFuncion: () {
                           Navigator.of(context).pushNamed(RoutesName.speedtest);
                         },
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMediumDark,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -281,13 +273,38 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         ),
                       )),
+                  //CATCH UP
+                  StaggeredGridTile.count(
+                      crossAxisCellCount: 2,
+                      mainAxisCellCount: 1,
+                      child: SettingCard(
+                        onTapFuncion: () {
+                          Navigator.of(context).pushNamed(RoutesName.catchup);
+                        },
+                        colorBg: Const.colorPurpleMedium,
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.history,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              "Catch Up",
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      )),
                   //TELEGRAM
                   StaggeredGridTile.count(
                       crossAxisCellCount: 1,
                       mainAxisCellCount: 1,
                       child: SettingCard(
                         onTapFuncion: () {},
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMedium,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -305,10 +322,32 @@ class _SettingsPageState extends State<SettingsPage> {
                       mainAxisCellCount: 1,
                       child: SettingCard(
                         onTapFuncion: () {
-                          Navigator.of(context)
-                              .pushNamed(RoutesName.checkupdate);
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'Coming Soon',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                content: const Text(
+                                  'This feature will be available soon.',
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMediumDark,
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -333,7 +372,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTapFuncion: () {
                           Navigator.of(context).pushNamed(RoutesName.infoapp);
                         },
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMedium,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -353,12 +392,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTapFuncion: () {
                           Navigator.of(context).pushNamed(RoutesName.favorite);
                         },
-                        colorBg: Const.colorPurpleAccent,
+                        colorBg: Const.colorPurpleMediumDark,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.star,
+                              Icons.favorite_border,
                               size: 50,
                               color: Colors.white,
                             ),

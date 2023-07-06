@@ -1,7 +1,9 @@
 import 'package:app_movil_iptv/utils/routes/routes_name.dart';
 import 'package:app_movil_iptv/views/screens/home_page.dart';
 import 'package:app_movil_iptv/views/screens/login_page.dart';
+import 'package:app_movil_iptv/views/screens/settings/catch_up.dart';
 import 'package:app_movil_iptv/views/screens/settings/clear_cache.dart';
+import 'package:app_movil_iptv/views/screens/settings/favorites.dart';
 import 'package:app_movil_iptv/views/screens/settings/info_page.dart';
 import 'package:app_movil_iptv/views/screens/settings/settings_page.dart';
 import 'package:app_movil_iptv/views/screens/settings/speed_test_page.dart';
@@ -58,16 +60,16 @@ class Routes {
       //  builder: (BuildContext context) => const SettingsPage());
 
       case RoutesName.catchup:
-      // return MaterialPageRoute(
-      //builder: (BuildContext context) => const SettingsPage());
+        return MaterialPageRoute(
+            builder: (BuildContext context) => const CatchUpPage());
 
       case RoutesName.speedtest:
         return MaterialPageRoute(
             builder: (BuildContext context) => const SpeedTestPage());
 
       case RoutesName.favorite:
-      // return MaterialPageRoute(
-      //  builder: (BuildContext context) => const SettingsPage());
+        return MaterialPageRoute(
+            builder: (BuildContext context) => const FavoritesPage());
 
       case RoutesName.infoapp:
         return MaterialPageRoute(
