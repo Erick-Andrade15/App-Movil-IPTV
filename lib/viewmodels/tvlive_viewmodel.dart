@@ -12,15 +12,6 @@ class TvLiveViewModel {
     return category.where((x) => x.type == 'TVLive').toList();
   }
 
-  Future<List<ClsCategory>> searchCategoryTV(String search) async {
-    List<ClsCategory> category = Globals.globalCategoryList;
-    return category
-        .where((x) =>
-            x.type == 'TVLive' &&
-            x.categoryName.toLowerCase().contains(search.toLowerCase()))
-        .toList();
-  }
-
   Future<List<ClsChannel>> allChannels(String category) async {
     List<ClsChannel> channels = Globals.globalChannelList;
     if (category.isNotEmpty) {
@@ -47,7 +38,7 @@ class TvLiveViewModel {
   }
 
   void updateChannels(Function updateChannel) {
-    // var update = repository.loadChannels(false);
-    // updateChannel(update);
+     var update = repository.loadChannels(false);
+     updateChannel(update);
   }
 }
