@@ -33,99 +33,97 @@ class InfoPage extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Welcome to our application',
-                        style: Const.fontHeaderTextStyle,
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Container(
+              color: Const.colorPurpleDark.withOpacity(0.8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Welcome to our application',
+                            style: Const.fontHeaderTextStyle,
+                          ),
+                          Utils.verticalSpace(10),
+                          const Text(
+                            'Here you will find a wide selection of channels, movies, and series to enjoy on your device.',
+                            style: Const.fontBodyTextStyle,
+                          ),
+                          Utils.verticalSpace(10),
+                          const Text(
+                            'Explore and enjoy all the available content in our application. Don\'t miss out!',
+                            style: Const.fontBodyTextStyle,
+                          ),
+                        ],
                       ),
-                      Utils.verticalSpace(10),
-                     const Text(
-                        'Here you will find a wide selection of channels, movies, and series to enjoy on your device.',
-                        style: Const.fontBodyTextStyle,
-                      ),
-                      Utils.verticalSpace(10),
-                      const Text(
-                        'Explore and enjoy all the available content in our application. Don\'t miss out!',
-                        style: Const.fontBodyTextStyle,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Key Features:',
-                        style: Const.fontTitleTextStyle,
-                      ),
-                      Utils.verticalSpace(5),
-                      _buildFeatureItem(
-                        icon: Icons.live_tv,
-                        title: 'Live Channels',
-                        description:
+                  Utils.horizontalSpace(20),
+                  const Expanded(
+                    flex: 2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ListTile(
+                          leading: Icon(
+                            Icons.live_tv,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                          title: Text(
+                            'Live Channels',
+                            style: Const.fontSubtitleTextStyle,
+                          ),
+                          subtitle: Text(
                             'Access a variety of live channels to watch your favorite shows.',
-                      ),
-                      _buildFeatureItem(
-                        icon: Icons.movie,
-                        title: 'Movies',
-                        description:
+                            style: Const.fontBodyTextStyle,
+                          ),
+                        ),
+                        ListTile(
+                          leading: Icon(
+                            Icons.movie,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                          title: Text(
+                            'Movies',
+                            style: Const.fontSubtitleTextStyle,
+                          ),
+                          subtitle: Text(
                             'Explore our collection of movies and enjoy great entertainment.',
-                      ),
-                      _buildFeatureItem(
-                        icon: Icons.tv,
-                        title: 'Series',
-                        description:
+                            style: Const.fontBodyTextStyle,
+                          ),
+                        ),
+                        ListTile(
+                          leading: Icon(
+                            Icons.tv,
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                          title: Text(
+                            'Series',
+                            style: Const.fontSubtitleTextStyle,
+                          ),
+                          subtitle: Text(
                             'Discover exciting series of different genres and stay up to date with your episodes.',
-                      ),
-                    ],
+                            style: Const.fontBodyTextStyle,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFeatureItem(
-      {required IconData icon,
-      required String title,
-      required String description}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 32.0, color: Colors.white),
-            Utils.horizontalSpace(5),
-            Text(
-              title,
-              style: Const.fontSubtitleTextStyle,
-            ),
-          ],
-        ),
-        Utils.horizontalSpace(5),
-        Text(
-          description,
-          style: Const.fontBodyTextStyle,
-        ),
-        Utils.verticalSpace(15),
-      ],
     );
   }
 }
