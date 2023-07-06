@@ -306,6 +306,11 @@ class Repository {
       jsonChannel = jsonEncode(channels);
 
       await Future.wait([
+        storageService.deleteSecureData('SessionJsonChannels'),
+        storageService.deleteSecureData('SessionJsonCategory'),
+      ]);
+
+      await Future.wait([
         storageService.writeSecureData('SessionJsonChannels', jsonChannel),
         storageService.writeSecureData('SessionJsonCategory', jsonCategory),
       ]);
@@ -345,6 +350,11 @@ class Repository {
       //AGREGAMOS LAS PELICULAS
       List<ClsMovies> movies = await getAllMovies();
       jsonMovies = jsonEncode(movies);
+
+      await Future.wait([
+        storageService.deleteSecureData('SessionJsonMovies'),
+        storageService.deleteSecureData('SessionJsonCategory'),
+      ]);
 
       await Future.wait([
         storageService.writeSecureData('SessionJsonMovies', jsonMovies),
@@ -392,6 +402,11 @@ class Repository {
       jsonCategory = jsonEncode(Globals.globalCategoryList);
 
       await Future.wait([
+        storageService.deleteSecureData('SessionJsonTvShows'),
+        storageService.deleteSecureData('SessionJsonCategory'),
+      ]);
+
+      await Future.wait([
         storageService.writeSecureData('SessionJsonTvShows', jsonTvShows),
         storageService.writeSecureData('SessionJsonCategory', jsonCategory),
       ]);
@@ -409,6 +424,13 @@ class Repository {
     EasyLoading.show(status: 'Loading...\nThe channels, Movies\nand Tv shows');
 
     try {
+      var jsonUserData = await storageService.readSecureData('SessionJsonUser');
+      userData = ClsUsers.fromJson(jsonDecode(jsonUserData!));
+      if (userData.userInfo == null) {
+        EasyLoading.showError('An error occurred');
+        return;
+      }
+
       bool channelsLoaded = await loadChannels(true);
       bool moviesLoaded = await loadMovies(true);
       bool tvShowsLoaded = await loadTvShows(true);
