@@ -82,11 +82,11 @@ class MoviesViewModel {
           // Verifica si el título de la película ya existe en uniqueMovies
           //o si hay algún título en uniqueMovies que es contenido por el título de la película actual
           var isDuplicate = uniqueMovies.any((title) =>
-              title.contains(movie.nameMovie!.toLowerCase()) ||
-              movie.nameMovie!.toLowerCase().contains(title));
+              title.contains(movie.titleMovie!.toLowerCase()) ||
+              movie.titleMovie!.toLowerCase().contains(title));
           if (!isDuplicate) {
             // Agrega el título de la película actual a uniqueMovies
-            uniqueMovies.add(movie.nameMovie!.toLowerCase());
+            uniqueMovies.add(movie.titleMovie!.toLowerCase());
             return true;
           }
           return false;
@@ -187,7 +187,7 @@ class MoviesViewModel {
   }
 
   void updateMovies(Function updateMovie) {
-    //var update = repository.loadMovies(false);
-    // updateMovie(update);
+    var update = repository.loadMovies(false);
+    updateMovie(update);
   }
 }
