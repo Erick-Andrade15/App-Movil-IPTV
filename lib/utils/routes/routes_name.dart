@@ -18,8 +18,6 @@ class RoutesName {
   static const String userinfo = 'userinfo';
   //Clear Cache screen routes name
   static const String clearcache = 'clearcache';
-  //Log Out screen routes name
-  static const String logout = 'logout';
   //Control Parental screen routes name
   static const String controlparental = 'controlparental';
   //Catch Up screen routes name

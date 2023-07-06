@@ -51,18 +51,6 @@ class Routes {
         return MaterialPageRoute(
             builder: (BuildContext context) => const ClearCache());
 
-      case RoutesName.logout:
-      // return MaterialPageRoute(
-      //   builder: (BuildContext context) => const SettingsPage());
-
-      case RoutesName.controlparental:
-      // return MaterialPageRoute(
-      //  builder: (BuildContext context) => const SettingsPage());
-
-      case RoutesName.catchup:
-        return MaterialPageRoute(
-            builder: (BuildContext context) => const CatchUpPage());
-
       case RoutesName.speedtest:
         return MaterialPageRoute(
             builder: (BuildContext context) => const SpeedTestPage());
@@ -71,9 +59,17 @@ class Routes {
         return MaterialPageRoute(
             builder: (BuildContext context) => const FavoritesPage());
 
+      case RoutesName.catchup:
+        return MaterialPageRoute(
+            builder: (BuildContext context) => const CatchUpPage());
+
       case RoutesName.infoapp:
         return MaterialPageRoute(
             builder: (BuildContext context) => const InfoPage());
+
+      case RoutesName.controlparental:
+      // return MaterialPageRoute(
+      //  builder: (BuildContext context) => const SettingsPage());
 
       case RoutesName.checkupdate:
       // return MaterialPageRoute(
