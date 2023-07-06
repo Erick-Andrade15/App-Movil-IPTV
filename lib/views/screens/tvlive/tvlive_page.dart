@@ -440,6 +440,9 @@ class _TvLivePageState extends State<TvLivePage> {
                                                       channels[index];
                                                 });
                                               },
+                                              onLongPress: () {
+                                                
+                                              },
                                               leading:
                                                   FadeInImage.memoryNetwork(
                                                 placeholder: kTransparentImage,

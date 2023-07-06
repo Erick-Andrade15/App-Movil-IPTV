@@ -11,7 +11,7 @@ class MoviesViewModel {
   final Repository repository = Repository();
 
   Future<List<ClsCategory>> allCategoryMovies() async {
-    List<ClsCategory> category = Globals.globalCategoryList;
+    List<ClsCategory> category = Globals.globalCategories;
     Map<String, dynamic> jsonCategory = {'name': 'TODO', 'type': 'Movies'};
     ClsCategory categoryObj = ClsCategory.fromJson(jsonCategory);
     if (!category.any((x) => x.categoryName == 'TODO' && x.type == 'Movies')) {
@@ -21,7 +21,7 @@ class MoviesViewModel {
   }
 
   Future<List<ClsCategory>> searchCategoryMovies(String search) async {
-    List<ClsCategory> category = Globals.globalCategoryList;
+    List<ClsCategory> category = Globals.globalCategories;
     Map<String, dynamic> jsonCategry = {'name': 'TODO', 'type': 'Movies'};
     ClsCategory categoryObj = ClsCategory.fromJson(jsonCategry);
     if (!category.any((x) => x.categoryName == 'TODO' && x.type == 'Movies')) {
@@ -35,7 +35,7 @@ class MoviesViewModel {
   }
 
   Future<List<ClsMovies>> allMovies(String category) async {
-    List<ClsMovies> movies = Globals.globalMoviesList;
+    List<ClsMovies> movies = Globals.globalMovies;
     if (category.isNotEmpty) {
       var x = movies.where((x) => x.categoryId == category).toList();
       return x;
@@ -44,7 +44,7 @@ class MoviesViewModel {
   }
 
   Future<List<ClsMovies>> searchMovies(String category, String search) async {
-    List<ClsMovies> movies = Globals.globalMoviesList;
+    List<ClsMovies> movies = Globals.globalMovies;
     if (category.isEmpty) {
       return movies
           .where(
@@ -61,7 +61,7 @@ class MoviesViewModel {
 
   Future<List<ClsMovies>> allPremierMovies() async {
     // Obtener la primera categoría que cumple las condiciones
-    List<ClsCategory> categoryMovie = Globals.globalCategoryList;
+    List<ClsCategory> categoryMovie = Globals.globalCategories;
     ClsCategory categoryObj = categoryMovie.firstWhere(
       (category) =>
           category.type == 'Movies' &&
@@ -71,7 +71,7 @@ class MoviesViewModel {
       // Valor por defecto si no se encuentra ninguna categoría que cumpla las condiciones
     );
 
-    List<ClsMovies> movies = Globals.globalMoviesList;
+    List<ClsMovies> movies = Globals.globalMovies;
     var uniqueMovies = <String>{};
     var filteredMovies = movies
         .where((x) => x.categoryId == categoryObj.categoryId)

@@ -292,14 +292,14 @@ class Repository {
         }
       }
       //ELIMINAR CATEGORIA TVLIVE
-      Globals.globalCategoryList
+      Globals.globalCategories
           .removeWhere((category) => category.type == 'TVLive');
       //BUSCAR LAS CATEGORIAS DE TV LIVE
       List<ClsCategory> categoryTV =
           await getCategories("get_live_categories", "TVLive");
       //AGREGAR LAS CATEGORIAS DE TV LIVE
-      Globals.globalCategoryList.addAll(categoryTV);
-      jsonCategory = jsonEncode(Globals.globalCategoryList);
+      Globals.globalCategories.addAll(categoryTV);
+      jsonCategory = jsonEncode(Globals.globalCategories);
 
       //AGREGAMOS LOS CANALES
       List<ClsChannel> channels = await getLiveChannels();
@@ -338,14 +338,14 @@ class Repository {
         }
       }
       //ELIMINAR CATEGORIA MOVIES
-      Globals.globalCategoryList
+      Globals.globalCategories
           .removeWhere((category) => category.type == 'Movies');
       //BUSCAR LAS CATEGORIAS DE MOVIES
       List<ClsCategory> categoryMovies =
           await getCategories("get_vod_categories", "Movies");
       //AGREGAR LAS CATEGORIAS DE MOVIES
-      Globals.globalCategoryList.addAll(categoryMovies);
-      jsonCategory = jsonEncode(Globals.globalCategoryList);
+      Globals.globalCategories.addAll(categoryMovies);
+      jsonCategory = jsonEncode(Globals.globalCategories);
 
       //AGREGAMOS LAS PELICULAS
       List<ClsMovies> movies = await getAllMovies();
@@ -385,21 +385,21 @@ class Repository {
       }
 
       //ELIMINAR CATEGORIA TVSHOWS
-      Globals.globalCategoryList
+      Globals.globalCategories
           .removeWhere((category) => category.type == 'Series');
       //BUSCAR LAS CATEGORIAS DE SERIES
       List<ClsCategory> categorySeries =
           await getCategories("get_series_categories", "Series");
       //AGREGAR LAS CATEGORIAS DE SERIES
-      Globals.globalCategoryList.addAll(categorySeries);
-      jsonCategory = jsonEncode(Globals.globalCategoryList);
+      Globals.globalCategories.addAll(categorySeries);
+      jsonCategory = jsonEncode(Globals.globalCategories);
 
       //AGREGAMOS LAS SERIES
       List<ClsTvShows> tvShows = await getAllSeries();
       jsonTvShows = jsonEncode(tvShows);
 
       //CATEGORY
-      jsonCategory = jsonEncode(Globals.globalCategoryList);
+      jsonCategory = jsonEncode(Globals.globalCategories);
 
       await Future.wait([
         storageService.deleteSecureData('SessionJsonTvShows'),

@@ -8,22 +8,32 @@ import 'package:app_movil_iptv/data/models/user.dart';
 import 'package:app_movil_iptv/data/services/storage_service.dart';
 
 class Globals {
-  static List<ClsCategory> globalCategoryList = [];
-  static List<ClsChannel> globalChannelList = [];
-  static List<ClsMovies> globalMoviesList = [];
-  static List<ClsTvShows> globalTvShowsList = [];
+  static List<ClsCategory> globalCategories = [];
+  static List<ClsChannel> globalChannels = [];
+  static List<ClsMovies> globalMovies = [];
+  static List<ClsTvShows> globalTvShows = [];
   static ClsUsers? globalUserAcount;
   static ClsChannel? channelUrl;
+  //CATCHUP
+  static List<ClsChannel> globalCatchUpChannel = [];
+  static List<ClsMovies> globalCatchUpMovies = [];
+  static List<ClsTvShows> globalCatchUpTvShows = [];
+  //FAVORITES
+  static List<ClsChannel> globalFavoriteChannel = [];
+  static List<ClsMovies> globalFavoriteMovies = [];
+  static List<ClsTvShows> globalFavoriteTvShows = [];
 
   static final storage = StorageService();
 
   static Future<void> loadGlobalsFromStorage() async {
-    globalCategoryList = await loadCategoryList();
-    globalChannelList = await loadChannelList();
-    globalMoviesList = await loadMoviesList();
-    globalTvShowsList = await loadTvShowsList();
+    globalCategories = await loadCategoryList();
+    globalChannels = await loadChannelList();
+    globalMovies = await loadMoviesList();
+    globalTvShows = await loadTvShowsList();
     globalUserAcount = await loadUser();
-    channelUrl = globalChannelList.elementAt(100);
+    channelUrl = globalChannels.elementAt(100);
+    //CATCHUP
+    //FAVORITES
   }
 
   static Future<ClsUsers> loadUser() async {

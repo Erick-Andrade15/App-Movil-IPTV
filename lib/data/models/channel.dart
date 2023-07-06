@@ -5,6 +5,8 @@ class ClsChannel {
   String? urlChannel; //URL
   String? streamImg;
   String? categoryId;
+  bool isFavorite; // Nuevo campo
+
   // List<ClsCategory> categories;
 
   ClsChannel({
@@ -14,6 +16,7 @@ class ClsChannel {
     this.urlChannel,
     this.streamImg,
     this.categoryId,
+    this.isFavorite = false, // Valor predeterminado es false
   });
 
   factory ClsChannel.fromJson(Map<String, dynamic> jsonData) => ClsChannel(
@@ -23,6 +26,7 @@ class ClsChannel {
         urlChannel: jsonData["url"] ?? "",
         streamImg: jsonData["stream_icon"] ?? "",
         categoryId: jsonData["category_id"] ?? "",
+        isFavorite: jsonData["is_favorite"] ?? false,
 
         // categories: List<ClsCategory>.from(
         //   jsonData["categories"].map((x) => ClsCategory.fromJson(x))),
@@ -35,6 +39,7 @@ class ClsChannel {
         "url": urlChannel,
         "stream_icon": streamImg,
         "category_id": categoryId,
+        "is_favorite": isFavorite,
 
         // "categories": List<dynamic>.from(categories.map((x) => x.toJson())),
       };
