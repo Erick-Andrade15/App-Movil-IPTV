@@ -20,7 +20,7 @@ class TvLivePage extends StatefulWidget {
 class _TvLivePageState extends State<TvLivePage> {
   TvLiveViewModel viewModelTvLive = TvLiveViewModel();
   Widget appBarTitle = const Text("TODOS LOS CANALES");
-  late String titleCategory = "";
+  late String titleCategory = "TODOS LOS CANALES";
   late String idCategorySearch = "";
 
   late Future<List<ClsChannel>>? futureChannels;
@@ -50,15 +50,54 @@ class _TvLivePageState extends State<TvLivePage> {
   }
 
   void searchChannels(String enteredKeyword) {
-    if (enteredKeyword.isEmpty) {
-      setState(() {
-        futureChannels = viewModelTvLive.allChannels('');
-      });
-    } else {
-      setState(() {
-        futureChannels =
-            viewModelTvLive.searchChannels(idCategorySearch, enteredKeyword);
-      });
+    switch (titleCategory) {
+      case 'FAVORITE':
+        if (enteredKeyword.isEmpty) {
+          setState(() {
+            futureChannels = viewModelTvLive.allChannelsFavorites();
+          });
+        } else {
+          setState(() {
+            futureChannels =
+                viewModelTvLive.searchChannelsFavorite(enteredKeyword);
+          });
+        }
+        break;
+      case 'CATCH UP':
+        if (enteredKeyword.isEmpty) {
+          setState(() {
+            futureChannels = viewModelTvLive.allChannelsCatchUp();
+          });
+        } else {
+          setState(() {
+            futureChannels =
+                viewModelTvLive.searchChannelsCatchUp(enteredKeyword);
+          });
+        }
+        break;
+      case 'TODOS LOS CANALES':
+        if (enteredKeyword.isEmpty) {
+          setState(() {
+            futureChannels = viewModelTvLive.allChannels('');
+          });
+        } else {
+          setState(() {
+            futureChannels = viewModelTvLive.searchChannels('', enteredKeyword);
+          });
+        }
+        break;
+      default:
+        if (enteredKeyword.isEmpty) {
+          setState(() {
+            futureChannels = viewModelTvLive.allChannels(idCategorySearch);
+          });
+        } else {
+          setState(() {
+            futureChannels = viewModelTvLive.searchChannels(
+                idCategorySearch, enteredKeyword);
+          });
+        }
+        break;
     }
   }
 
@@ -155,9 +194,8 @@ class _TvLivePageState extends State<TvLivePage> {
                           icon: actionIcon,
                           onPressed: () {
                             setState(() {
-                              Widget bdtitleAppbar = titleCategory.isEmpty
-                                  ? const Text("TODOS LOS CANALES")
-                                  : Text(titleCategory.toString());
+                              Widget bdtitleAppbar =
+                                  Text(titleCategory.toString());
                               if (actionIcon.icon == Icons.search) {
                                 actionIcon = const Icon(Icons.close);
                                 appBarTitle = TextField(
@@ -173,8 +211,24 @@ class _TvLivePageState extends State<TvLivePage> {
                                   ),
                                 );
                               } else {
-                                futureChannels = viewModelTvLive
-                                    .allChannels(idCategorySearch);
+                                switch (titleCategory) {
+                                  case 'FAVORITE':
+                                    futureChannels =
+                                        viewModelTvLive.allChannelsFavorites();
+                                    break;
+                                  case 'CATCH UP':
+                                    futureChannels =
+                                        viewModelTvLive.allChannelsCatchUp();
+                                    break;
+                                  case 'TODOS LOS CANALES':
+                                    futureChannels =
+                                        viewModelTvLive.allChannels('');
+                                    break;
+                                  default:
+                                    futureChannels = viewModelTvLive
+                                        .allChannels(idCategorySearch);
+                                    break;
+                                }
                                 actionIcon = const Icon(Icons.search);
                                 appBarTitle = bdtitleAppbar;
                               }
@@ -211,13 +265,27 @@ class _TvLivePageState extends State<TvLivePage> {
                                         (Future<bool> isUpdate) async {
                                       if (await isUpdate) {
                                         setState(() {
+                                          switch (titleCategory) {
+                                            case 'FAVORITE':
+                                              futureChannels = viewModelTvLive
+                                                  .allChannelsFavorites();
+                                              break;
+                                            case 'CATCH UP':
+                                              futureChannels = viewModelTvLive
+                                                  .allChannelsCatchUp();
+                                              break;
+                                            case 'TODOS LOS CANALES':
+                                              futureChannels = viewModelTvLive
+                                                  .allChannels('');
+                                              break;
+                                            default:
+                                              futureChannels =
+                                                  viewModelTvLive.allChannels(
+                                                      idCategorySearch);
+                                              break;
+                                          }
                                           futureChannelGlobal =
-                                              Future.value(Globals.channelUrl);
-                                          futureChannels =
-                                              viewModelTvLive.allChannels(
-                                                  idCategorySearch.isNotEmpty
-                                                      ? idCategorySearch
-                                                      : '');
+                                              Future.value(Globals.channelUrl);                                         
                                           futureCategory =
                                               viewModelTvLive.allCategoryTV();
                                         });
@@ -273,14 +341,19 @@ class _TvLivePageState extends State<TvLivePage> {
                                                             .fontCaptionTextStyle,
                                                       ),
                                                       onTap: () {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          const SnackBar(
-                                                            content: Text(
-                                                                "Catch Up"),
-                                                          ),
-                                                        );
+                                                        setState(() {
+                                                          actionIcon =
+                                                              const Icon(
+                                                                  Icons.search);
+                                                          appBarTitle =
+                                                              const Text(
+                                                                  "CATCH UP");
+                                                          titleCategory =
+                                                              "CATCH UP";
+                                                          futureChannels =
+                                                              viewModelTvLive
+                                                                  .allChannelsCatchUp();
+                                                        });
                                                       },
                                                     ),
                                                     const Divider(
@@ -290,21 +363,36 @@ class _TvLivePageState extends State<TvLivePage> {
                                                   ],
                                                 );
                                               } else if (index == 1) {
-                                                return const Column(
+                                                return Column(
                                                   children: <Widget>[
                                                     ListTile(
-                                                      leading: Icon(
+                                                      leading: const Icon(
                                                         Icons.favorite_border,
                                                         color: Const
                                                             .colorPinkAccent,
                                                       ),
-                                                      title: Text(
+                                                      title: const Text(
                                                         "FAVORITE",
                                                         style: Const
                                                             .fontCaptionTextStyle,
                                                       ),
+                                                      onTap: () {
+                                                        setState(() {
+                                                          actionIcon =
+                                                              const Icon(
+                                                                  Icons.search);
+                                                          appBarTitle =
+                                                              const Text(
+                                                                  "FAVORITE");
+                                                          titleCategory =
+                                                              "FAVORITE";
+                                                          futureChannels =
+                                                              viewModelTvLive
+                                                                  .allChannelsFavorites();
+                                                        });
+                                                      },
                                                     ),
-                                                    Divider(
+                                                    const Divider(
                                                       height: 1,
                                                       color: Colors.grey,
                                                     ),
@@ -323,7 +411,8 @@ class _TvLivePageState extends State<TvLivePage> {
                                                         setState(() {
                                                           appBarTitle = const Text(
                                                               "TODOS LOS CANALES");
-                                                          titleCategory = "";
+                                                          titleCategory =
+                                                              "TODOS LOS CANALES";
                                                           futureChannels =
                                                               viewModelTvLive
                                                                   .allChannels(
@@ -432,7 +521,11 @@ class _TvLivePageState extends State<TvLivePage> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                               onTap: () {
+                                                //AGREGAR AL CATCHUP
+                                                viewModelTvLive.addToCatchUp(
+                                                    channels[index]);
                                                 setState(() {
+                                                  //ACTUALIZAR CHANNEL
                                                   futureChannelGlobal =
                                                       Future.value(
                                                           channels[index]);
@@ -441,7 +534,21 @@ class _TvLivePageState extends State<TvLivePage> {
                                                 });
                                               },
                                               onLongPress: () {
-                                                
+                                                //AGREGAR A FAVORITOS
+                                                viewModelTvLive
+                                                    .addToFavorites(
+                                                        channels[index])
+                                                    .then((value) {
+                                                  //ACTUALIZAR  FAVORITOS
+                                                  if (titleCategory ==
+                                                      "FAVORITE") {
+                                                    setState(() {
+                                                      futureChannels =
+                                                          viewModelTvLive
+                                                              .allChannelsFavorites();
+                                                    });
+                                                  }
+                                                });
                                               },
                                               leading:
                                                   FadeInImage.memoryNetwork(

@@ -33,7 +33,9 @@ class Globals {
     globalUserAcount = await loadUser();
     channelUrl = globalChannels.elementAt(100);
     //CATCHUP
+    globalCatchUpChannel = await loadChannelCatchUpList();
     //FAVORITES
+    globalFavoriteChannel = await loadChannelFavoriteList();
   }
 
   static Future<ClsUsers> loadUser() async {
@@ -54,6 +56,30 @@ class Globals {
   static Future<List<ClsChannel>> loadChannelList() async {
     List<ClsChannel> channelList = [];
     var m3uChannels = await storage.readSecureData('SessionJsonChannels');
+    List<dynamic> channelData = jsonDecode(m3uChannels!);
+    for (var element in channelData) {
+      channelList.add(ClsChannel.fromJson(element));
+    }
+    return channelList;
+  }
+
+  //CATCHUP
+  static Future<List<ClsChannel>> loadChannelCatchUpList() async {
+    List<ClsChannel> channelList = [];
+    var m3uChannels =
+        await storage.readSecureData('SessionJsonCatchUpChannels');
+    List<dynamic> channelData = jsonDecode(m3uChannels!);
+    for (var element in channelData) {
+      channelList.add(ClsChannel.fromJson(element));
+    }
+    return channelList;
+  }
+
+  //FAVORITES
+  static Future<List<ClsChannel>> loadChannelFavoriteList() async {
+    List<ClsChannel> channelList = [];
+    var m3uChannels =
+        await storage.readSecureData('SessionJsonFavoriteChannels');
     List<dynamic> channelData = jsonDecode(m3uChannels!);
     for (var element in channelData) {
       channelList.add(ClsChannel.fromJson(element));
