@@ -125,7 +125,7 @@ class _CarruselEstrenosState extends State<CarruselEstrenos> {
                       autoPlay: true,
                       aspectRatio: 16 / 9,
                       enlargeCenterPage: true,
-                      enableInfiniteScroll: false,
+                      enableInfiniteScroll: true,
                       enlargeStrategy: CenterPageEnlargeStrategy.zoom,
                     ),
                   );

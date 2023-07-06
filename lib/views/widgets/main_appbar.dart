@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/utils/routes/routes_name.dart';
+import 'package:app_movil_iptv/viewmodels/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -25,6 +26,7 @@ class MainAppbar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MainAppbarState extends State<MainAppbar> {
+  HomeViewModel viewModelHome = HomeViewModel();
   late FocusNode iconButtonFocusNode;
   late FocusNode settingsButtonFocusNode;
 
@@ -76,12 +78,17 @@ class _MainAppbarState extends State<MainAppbar> {
             tooltip: "Update All Content",
             iconSize: 40,
             icon: const Icon(Icons.downloading),
-            onPressed: () {},
+            onPressed: () {
+              viewModelHome.updateAllM3U();
+              //  //if (widget.pageRoute == 'home_page') {
+              // widget.togglePlayingChannel!(true);
+              // }
+            },
             color: Const.colorWhite),
         IconButton(
             focusNode: widget.focusNodes?['buttomSetting'],
             focusColor: Const.colorPinkAccent,
-            tooltip: widget.pageRoute == 'home_page' ? "Settings" : "Home Page",
+            tooltip: widget.pageRoute == 'home_page' ? "Settings" : "Home",
             iconSize: 40,
             icon: const Icon(Icons.settings),
             onPressed: () {
