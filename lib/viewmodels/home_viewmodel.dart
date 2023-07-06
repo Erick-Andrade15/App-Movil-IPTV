@@ -5,20 +5,19 @@ class HomeViewModel {
   final Repository repository = Repository();
 
   void updateAllM3U() {
-    //repository.loadAllM3u();
+    repository.loadAllM3u();
   }
 
   String expirationDate(String? timestamp) {
-  try {
-    DateTime date =
-        DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp ?? "") * 1000);
+    try {
+      DateTime date = DateTime.fromMillisecondsSinceEpoch(
+          int.parse(timestamp ?? "") * 1000);
 
-    var format = DateFormat("dd MMM, yyy").format(date);
+      var format = DateFormat("dd MMM, yyy").format(date);
 
-    return format;
-  } catch (e) {
-    return "error date";
+      return format;
+    } catch (e) {
+      return "error date";
+    }
   }
-
-}
 }
