@@ -8,7 +8,6 @@ import 'package:app_movil_iptv/utils/globals.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class TvLiveViewModel {
-  final Globals globals = Globals();
   final Repository repository = Repository();
   final StorageService storageService = StorageService();
 
