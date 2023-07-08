@@ -34,8 +34,12 @@ class Globals {
     channelUrl = globalChannels.elementAt(100);
     //CATCHUP
     globalCatchUpChannel = await loadChannelCatchUpList();
+    globalCatchUpMovies = await loadCatchUpMovieList();
+    globalCatchUpTvShows = await loadCatchUpSeriesList();
     //FAVORITES
     globalFavoriteChannel = await loadChannelFavoriteList();
+    globalFavoriteMovies = await loadMoviesFavoriteList();
+    globalFavoriteTvShows = await loadSeriesFavoriteList();
   }
 
   static Future<ClsUsers> loadUser() async {
@@ -75,6 +79,28 @@ class Globals {
     return channelList;
   }
 
+  static Future<List<ClsMovies>> loadCatchUpMovieList() async {
+    List<ClsMovies> movieList = [];
+    var catchUpMoviesData =
+        await storage.readSecureData('SessionJsonCatchUpMovies');
+    List<dynamic> movieData = jsonDecode(catchUpMoviesData!);
+    for (var element in movieData) {
+      movieList.add(ClsMovies.fromJson(element));
+    }
+    return movieList;
+  }
+
+  static Future<List<ClsTvShows>> loadCatchUpSeriesList() async {
+    List<ClsTvShows> seriesList = [];
+    var catchUpSeriesData =
+        await storage.readSecureData('SessionJsonCatchUpSeries');
+    List<dynamic> seriesData = jsonDecode(catchUpSeriesData!);
+    for (var element in seriesData) {
+      seriesList.add(ClsTvShows.fromJson(element));
+    }
+    return seriesList;
+  }
+
   //FAVORITES
   static Future<List<ClsChannel>> loadChannelFavoriteList() async {
     List<ClsChannel> channelList = [];
@@ -85,6 +111,26 @@ class Globals {
       channelList.add(ClsChannel.fromJson(element));
     }
     return channelList;
+  }
+
+  static Future<List<ClsMovies>> loadMoviesFavoriteList() async {
+    List<ClsMovies> moviesList = [];
+    var m3uMovies = await storage.readSecureData('SessionJsonFavoriteMovies');
+    List<dynamic> moviesData = jsonDecode(m3uMovies!);
+    for (var element in moviesData) {
+      moviesList.add(ClsMovies.fromJson(element));
+    }
+    return moviesList;
+  }
+
+  static Future<List<ClsTvShows>> loadSeriesFavoriteList() async {
+    List<ClsTvShows> seriesList = [];
+    var m3uSeries = await storage.readSecureData('SessionJsonFavoriteSeries');
+    List<dynamic> seriesData = jsonDecode(m3uSeries!);
+    for (var element in seriesData) {
+      seriesList.add(ClsTvShows.fromJson(element));
+    }
+    return seriesList;
   }
 
   static Future<List<ClsMovies>> loadMoviesList() async {
