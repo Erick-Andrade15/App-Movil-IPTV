@@ -262,8 +262,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                     MaterialButton(
                                       minWidth: 175,
                                       height: 50,
-                                      onPressed:
-                                          () {}, //VER PELICULA REPRODUCTOR
+                                      onPressed: () {
+                                        viewModelMovies
+                                            .addToCatchUp(widget.clsMovies);
+                                      }, //VER PELICULA REPRODUCTOR
                                       color: Const.colorPurpleMedium,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -299,8 +301,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                     MaterialButton(
                                       minWidth: 175,
                                       height: 50,
-                                      onPressed:
-                                          () {}, //VER PELICULA REPRODUCTOR
+                                      onPressed: () {
+                                        viewModelMovies
+                                            .addToCatchUp(widget.clsMovies);
+                                      }, //VER PELICULA REPRODUCTOR
                                       color: Const.colorPurpleMedium,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
