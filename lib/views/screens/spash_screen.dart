@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       (timer) {
         SplashViewModel().decideNavigation((Future<bool> isLoggedIn) async {
           Navigator.pushReplacementNamed(
-              context, await isLoggedIn ? RoutesName.home : RoutesName.settings); //RoutesName.login);
+              context, await isLoggedIn ? RoutesName.home : RoutesName.login); //RoutesName.login);
         });
         timer.cancel();
       },
