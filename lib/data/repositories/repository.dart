@@ -225,7 +225,7 @@ class Repository {
         //Formato URL
         movie.urlMovie =
             '${sessionUserData.serverInfo?.serverProtocol}://${sessionUserData.serverInfo?.url}:${sessionUserData.serverInfo?.port}/movie/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.password}/${movie.idMovie}.${movie.extensionUrl}';
-        //ELIMINAR (2010) DE PELICULAS
+        //ELIMINAR (2010) DE PELICULAS //OJO
         if (movie.titleMovie!.contains(RegExp(r'\((\d{4})\)'))) {
           movie.titleMovie =
               movie.titleMovie!.replaceAll(RegExp(r'\((\d{4})\)'), '').trim();
@@ -304,11 +304,8 @@ class Repository {
       //AGREGAMOS LOS CANALES
       List<ClsChannel> channels = await getLiveChannels();
       jsonChannel = jsonEncode(channels);
-
-      await Future.wait([
-        storageService.deleteSecureData('SessionJsonChannels'),
-        storageService.deleteSecureData('SessionJsonCategory'),
-      ]);
+      
+      //ACTUALIZAR FAVORITES Y CATCHUP
 
       await Future.wait([
         storageService.writeSecureData('SessionJsonChannels', jsonChannel),

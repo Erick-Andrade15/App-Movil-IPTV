@@ -1,5 +1,4 @@
 import 'package:app_movil_iptv/data/models/movies.dart';
-import 'package:app_movil_iptv/data/models/tmdb/tmdb_movies.dart';
 import 'package:app_movil_iptv/data/models/user.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/utils/globals.dart';
@@ -62,9 +61,8 @@ class _CarruselEstrenosState extends State<CarruselEstrenos> {
                     itemCount: movies!.length,
                     itemBuilder:
                         (BuildContext context, int index, int realIndex) {
-                      return FutureBuilder<TMDBMovies>(
-                        future: viewModelMovies.getCarruselMovies(
-                            movies[index].nameMovie!, movies[index].streamImg!),
+                      return FutureBuilder<String>(
+                        future: viewModelMovies.getMovieImage(movies[index]),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -76,7 +74,7 @@ class _CarruselEstrenosState extends State<CarruselEstrenos> {
                               ),
                             );
                           } else {
-                            final dataMovieTMDB = snapshot.data;
+                            final imgMovie = snapshot.data;
 
                             return GestureDetector(
                               onTap: () {
@@ -90,7 +88,7 @@ class _CarruselEstrenosState extends State<CarruselEstrenos> {
                                 borderRadius: BorderRadius.circular(11.0),
                                 child: FadeInImage.memoryNetwork(
                                   placeholder: kTransparentImage,
-                                  image: dataMovieTMDB!.posterPath,
+                                  image: imgMovie!,
                                   height: 150.0,
                                   width: 100.0,
                                   fit: BoxFit.cover,

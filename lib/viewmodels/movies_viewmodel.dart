@@ -1,37 +1,22 @@
+import 'dart:convert';
+
 import 'package:app_movil_iptv/data/models/category.dart';
 import 'package:app_movil_iptv/data/models/movies.dart';
 import 'package:app_movil_iptv/data/models/tmdb/tmdb_movies.dart';
 import 'package:app_movil_iptv/data/repositories/repository.dart';
+import 'package:app_movil_iptv/data/services/storage_service.dart';
 import 'package:app_movil_iptv/data/services/tmdb_service.dart';
 import 'package:app_movil_iptv/data/services/validate_image.dart';
 import 'package:app_movil_iptv/utils/globals.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class MoviesViewModel {
   final Repository repository = Repository();
+  final StorageService storageService = StorageService();
 
   Future<List<ClsCategory>> allCategoryMovies() async {
     List<ClsCategory> category = Globals.globalCategories;
-    Map<String, dynamic> jsonCategory = {'name': 'TODO', 'type': 'Movies'};
-    ClsCategory categoryObj = ClsCategory.fromJson(jsonCategory);
-    if (!category.any((x) => x.categoryName == 'TODO' && x.type == 'Movies')) {
-      category.insert(0, categoryObj);
-    }
     return category.where((x) => x.type == 'Movies').toList();
-  }
-
-  Future<List<ClsCategory>> searchCategoryMovies(String search) async {
-    List<ClsCategory> category = Globals.globalCategories;
-    Map<String, dynamic> jsonCategry = {'name': 'TODO', 'type': 'Movies'};
-    ClsCategory categoryObj = ClsCategory.fromJson(jsonCategry);
-    if (!category.any((x) => x.categoryName == 'TODO' && x.type == 'Movies')) {
-      category.insert(0, categoryObj);
-    }
-    return category
-        .where((x) =>
-            x.type == 'Movies' &&
-            x.categoryName.toLowerCase().contains(search.toLowerCase()))
-        .toList();
   }
 
   Future<List<ClsMovies>> allMovies(String category) async {
@@ -43,22 +28,133 @@ class MoviesViewModel {
     return movies;
   }
 
+  Future<List<ClsMovies>> allWMovies(String category) async {
+    List<ClsMovies> movies = Globals.globalMovies;
+
+// Filtrar las películas por categoría si se proporciona una
+    if (category.isNotEmpty) {
+      movies.where((movie) => movie.categoryId == category).map((movie) async {
+        movie.streamImg = await getMovieImage(movie);
+        return movie;
+      }).toList();
+    }
+
+    // Obtener todas las imágenes de las películas de forma asíncrona
+    await Future.forEach(movies, (ClsMovies movie) async {
+      movie.streamImg = await getMovieImage(movie);
+    });
+
+    return movies;
+  }
+
   Future<List<ClsMovies>> searchMovies(String category, String search) async {
     List<ClsMovies> movies = Globals.globalMovies;
     if (category.isEmpty) {
       return movies
           .where(
-              (x) => x.nameMovie!.toLowerCase().contains(search.toLowerCase()))
+              (x) => x.titleMovie!.toLowerCase().contains(search.toLowerCase()))
           .toList();
     } else {
       return movies
           .where((x) =>
-              x.nameMovie!.toLowerCase().contains(search.toLowerCase()) &&
+              x.titleMovie!.toLowerCase().contains(search.toLowerCase()) &&
               x.categoryId == category)
           .toList();
     }
   }
 
+  //CATCHUP
+  Future<List<ClsMovies>> allMoviesCatchUp() async {
+    List<ClsMovies> movies = Globals.globalCatchUpMovies;
+    return movies;
+  }
+
+  Future<List<ClsMovies>> searchMoviesCatchUp(String search) async {
+    List<ClsMovies> movies = Globals.globalCatchUpMovies;
+    return movies
+        .where(
+            (x) => x.titleMovie!.toLowerCase().contains(search.toLowerCase()))
+        .toList();
+  }
+
+  Future<void> addToCatchUp(ClsMovies movie) async {
+    List<ClsMovies> catchUpMovies = Globals.globalCatchUpMovies;
+    int existingIndex =
+        catchUpMovies.indexWhere((c) => c.idMovie == movie.idMovie);
+
+    // Eliminar el último registro si se alcanza el límite de 50
+    if (catchUpMovies.length >= 50) {
+      catchUpMovies.removeLast();
+    }
+
+    if (existingIndex != -1) {
+      // Mover el canal existente a la posición 0
+      ClsMovies existingChannel = catchUpMovies[existingIndex];
+      catchUpMovies.removeAt(existingIndex);
+      catchUpMovies.insert(0, existingChannel);
+    } else {
+      // Agregar el nuevo canal en la posición 0
+      catchUpMovies.insert(0, movie);
+    }
+
+    String jsonMovies = jsonEncode(catchUpMovies);
+    Globals.globalCatchUpMovies = catchUpMovies;
+    await Future.wait([
+      storageService.writeSecureData('SessionJsonCatchUpMovies', jsonMovies),
+    ]);
+  }
+
+  //FAVORITES
+  Future<List<ClsMovies>> allMoviesFavorites() async {
+    List<ClsMovies> movies = Globals.globalFavoriteMovies;
+    return movies;
+  }
+
+  Future<List<ClsMovies>> searchMoviesFavorite(String search) async {
+    List<ClsMovies> movies = Globals.globalFavoriteMovies;
+    return movies
+        .where(
+            (x) => x.titleMovie!.toLowerCase().contains(search.toLowerCase()))
+        .toList();
+  }
+
+  Future<void> addToFavorites(ClsMovies movie) async {
+    List<ClsMovies> favoriteMovies = Globals.globalFavoriteMovies;
+
+    if (favoriteMovies.contains(movie)) {
+      favoriteMovies.remove(movie);
+      // updateMovieFavorite(movie, false);
+      EasyLoading.showToast(
+        'Movie "${movie.nameMovie}" removed from favorites',
+        duration: const Duration(seconds: 2),
+        toastPosition: EasyLoadingToastPosition.bottom,
+        maskType: EasyLoadingMaskType.none,
+      );
+    } else {
+      // movie.isFavorite = true;
+      favoriteMovies.insert(0, movie);
+      // updateMovieFavorite(movie, true);
+      EasyLoading.showToast(
+        'Movie "${movie.nameMovie}" added to favorites',
+        duration: const Duration(seconds: 2),
+        toastPosition: EasyLoadingToastPosition.bottom,
+        maskType: EasyLoadingMaskType.none,
+      );
+    }
+
+    String jsonMovies = jsonEncode(favoriteMovies);
+    Globals.globalFavoriteMovies = favoriteMovies;
+    await Future.wait([
+      storageService.writeSecureData('SessionJsonFavoriteMovies', jsonMovies),
+    ]);
+  }
+
+  bool isMovieFavorite(ClsMovies movie) {
+    List<ClsMovies> favoriteMovies = Globals.globalFavoriteMovies;
+    return favoriteMovies.contains(movie);
+  }
+
+//CARRUSELL
   Future<List<ClsMovies>> allPremierMovies() async {
     // Obtener la primera categoría que cumple las condiciones
     List<ClsCategory> categoryMovie = Globals.globalCategories;
@@ -97,50 +193,9 @@ class MoviesViewModel {
     return filteredMovies;
   }
 
-  Future<TMDBMovies> getCarruselMovies(String name, String urlImage) async {
-    String posterPath = "";
-    if (urlImage.isNotEmpty) {
-      var response = await validateImage(urlImage);
-      if (response) {
-        posterPath = urlImage;
-      } else {
-        var movieTMDB = await TMDBService.tmdbApi.v3.search.queryMovies(name);
-        if (movieTMDB['results']?.isNotEmpty ?? false) {
-          final result = movieTMDB['results'][0];
-          posterPath = result['poster_path'] != null
-              ? 'https://image.tmdb.org/t/p/w500${result['poster_path']}'
-              : '';
-        }
-      }
-    }
-
-    return TMDBMovies('', '', posterPath, '', 0, '');
-  }
-
-  Future<TMDBMovies> getDataMovies(String name, String urlImage) async {
+  Future<TMDBMovies> getAllDataMovies(ClsMovies movie) async {
     var movieTMDB = await TMDBService.tmdbApi.v3.search
-        .queryMovies(name, language: "es-EC");
-    String posterPath = "";
-    double voteAverage = 7.23;
-    if (movieTMDB['results']?.isNotEmpty ?? false) {
-      final result = movieTMDB['results'][0];
-      posterPath = 'https://image.tmdb.org/t/p/w500${result['poster_path']}';
-      voteAverage = result['vote_average'];
-    }
-
-    if (urlImage.isNotEmpty) {
-      var response = await http.get(Uri.parse(urlImage));
-      if (response.statusCode == 200) {
-        posterPath = urlImage;
-      }
-    }
-
-    return TMDBMovies('', '', posterPath, '', voteAverage, '');
-  }
-
-  Future<TMDBMovies> getAllDataMovies(String name, String urlImage) async {
-    var movieTMDB = await TMDBService.tmdbApi.v3.search
-        .queryMovies(name, language: "es-EC");
+        .queryMovies(movie.nameMovie!, language: "es-EC");
 
     final result = movieTMDB['results']?.isNotEmpty ?? false
         ? movieTMDB['results'][0]
@@ -149,19 +204,9 @@ class MoviesViewModel {
     String overview = result?['overview'] ?? "";
     String releaseDate = result?['release_date'] ?? "";
     double voteAverage = result?['vote_average'] ?? 7.23;
-    String posterPath =
-        'https://image.tmdb.org/t/p/w500${result?['poster_path'] ?? ""}';
+    String posterPath = await getMovieImage(movie);
     String urlTrailer = "";
     List<dynamic> genres = [];
-
-    if (urlImage.isNotEmpty) {
-      if (Uri.parse(urlImage).isAbsolute) {
-        var response = await http.get(Uri.parse(urlImage));
-        if (response.statusCode == 200) {
-          posterPath = urlImage;
-        }
-      }
-    }
 
     if (idTMDBMovie != 0) {
       var datosTMDBMovie = await TMDBService.tmdbApi.v3.movies
@@ -186,8 +231,65 @@ class MoviesViewModel {
         voteAverage, genres.join(", "));
   }
 
+  Future<String> getMovieImage(ClsMovies movie) async {
+    String imageUrl = ''; // Variable para almacenar la URL de la imagen
+    var response = await validateImage(movie.streamImg!);
+    if (response) {
+      imageUrl = movie.streamImg!;
+    } else {
+      var movieTMDB =
+          await TMDBService.tmdbApi.v3.search.queryMovies(movie.titleMovie!);
+      if (movieTMDB['results']?.isNotEmpty ?? false) {
+        final result = movieTMDB['results'][0];
+        imageUrl = result['poster_path'] != null
+            ? 'https://image.tmdb.org/t/p/w500${result['poster_path']}'
+            : '';
+      }
+    }
+
+    return imageUrl;
+  }
+
   void updateMovies(Function updateMovie) {
     var update = repository.loadMovies(false);
     updateMovie(update);
   }
+}
+
+
+class MoviesViewsModel {
+  // Caché de imágenes de películas
+  final Map<String, String> movieImageCache = {};
+
+  // ...
+
+  Future<String> getMovieImage(ClsMovies movie) async {
+    String imageUrl = ''; // Variable para almacenar la URL de la imagen
+
+    // Verificar si la imagen está en la caché
+    if (movieImageCache.containsKey(movie.titleMovie)) {
+      imageUrl = movieImageCache[movie.titleMovie]!;
+    } else {
+      var response = await validateImage(movie.streamImg!);
+      if (response) {
+        imageUrl = movie.streamImg!;
+      } else {
+        var movieTMDB =
+            await TMDBService.tmdbApi.v3.search.queryMovies(movie.titleMovie!);
+        if (movieTMDB['results']?.isNotEmpty ?? false) {
+          final result = movieTMDB['results'][0];
+          imageUrl = result['poster_path'] != null
+              ? 'https://image.tmdb.org/t/p/w500${result['poster_path']}'
+              : '';
+        }
+      }
+
+      // Almacenar la imagen en la caché
+      movieImageCache[movie.titleMovie!] = imageUrl;
+    }
+
+    return imageUrl;
+  }
+
+  // ...
 }

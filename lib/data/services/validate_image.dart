@@ -3,13 +3,12 @@ import 'package:http/http.dart' as http;
 Future<bool> validateImage(String imageUrl) async {
   http.Response res;
   try {
-    res = await http.head(Uri.parse(imageUrl));
+    res = await http.get(Uri.parse(imageUrl));
+    if (res.statusCode != 200) return false;
+    return true; //checkIfImage(data['content-type']);
   } catch (e) {
     return false;
   }
-  if (res.statusCode != 200) return false;
-  Map<String, dynamic> data = res.headers;
-  return checkIfImage(data['content-type']);
 }
 
 bool checkIfImage(String contentType) {
