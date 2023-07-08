@@ -81,7 +81,10 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: Container(
                             padding: const EdgeInsets.all(10),
-                            child: const Text('Error al obtener el video URL')),
+                            child: Text(
+                              Globals.channelUrl!.nameChannel!,
+                              style: Const.fontBodyTextStyle,
+                            )),
                       ),
                     ],
                   ),

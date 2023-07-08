@@ -61,60 +61,92 @@ class _CarruselEstrenosState extends State<CarruselEstrenos> {
                     itemCount: movies!.length,
                     itemBuilder:
                         (BuildContext context, int index, int realIndex) {
-                      return FutureBuilder<String>(
-                        future: viewModelMovies.getMovieImage(movies[index]),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: SizedBox(
-                                width: 50,
-                                height: 50,
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          } else {
-                            final imgMovie = snapshot.data;
-
-                            return GestureDetector(
-                              onTap: () {
-                                final snackBar = SnackBar(
-                                    content:
-                                        Text(movies[index].urlMovie ?? ''));
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                              }, //VER PELICULA REPRODUCTOR
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(11.0),
-                                child: FadeInImage.memoryNetwork(
-                                  placeholder: kTransparentImage,
-                                  image: imgMovie!,
-                                  height: 150.0,
-                                  width: 100.0,
-                                  fit: BoxFit.cover,
-                                  fadeInDuration:
-                                      const Duration(milliseconds: 300),
-                                  fadeOutDuration:
-                                      const Duration(milliseconds: 300),
-                                  imageErrorBuilder: (context, url, error) =>
-                                      Container(
-                                    height: 150.0,
-                                    width: 100.0,
-                                    color: Colors.grey,
-                                    child: ColorFiltered(
-                                      colorFilter: const ColorFilter.mode(
-                                          Colors.grey, BlendMode.saturation),
-                                      child: Image.asset(
-                                        Const.imgLogo,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
+                      return GestureDetector(
+                        onTap: () {
+                          final snackBar = SnackBar(
+                              content: Text(movies[index].urlMovie ?? ''));
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }, //VER PELICULA REPRODUCTOR
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Container(
+                                height: 150.0,
+                                width: 100.0,
+                                color: Colors.grey,
+                                child: ColorFiltered(
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.grey,
+                                    BlendMode.saturation,
+                                  ),
+                                  child: Image.asset(
+                                    Const.imgLogo,
+                                    fit: BoxFit.contain,
                                   ),
                                 ),
                               ),
-                            );
-                          }
-                        },
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: FutureBuilder<String>(
+                                future: viewModelMovies
+                                    .getMovieImage(movies[index]),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                          ConnectionState.waiting ||
+                                      snapshot.data!.isEmpty) {
+                                    return Container(
+                                      height: 150.0,
+                                      width: 100.0,
+                                      color: Colors.grey,
+                                      child: ColorFiltered(
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.grey,
+                                          BlendMode.saturation,
+                                        ),
+                                        child: Image.asset(
+                                          Const.imgLogo,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    String imageUrl = snapshot.data!;
+                                    return FadeInImage.memoryNetwork(
+                                      placeholder: kTransparentImage,
+                                      image: imageUrl,
+                                      height: 150.0,
+                                      width: 100.0,
+                                      fit: BoxFit.cover,
+                                      fadeInDuration:
+                                          const Duration(milliseconds: 300),
+                                      fadeOutDuration:
+                                          const Duration(milliseconds: 300),
+                                      imageErrorBuilder:
+                                          (context, url, error) => Container(
+                                        height: 150.0,
+                                        width: 100.0,
+                                        color: Colors.grey,
+                                        child: ColorFiltered(
+                                          colorFilter: const ColorFilter.mode(
+                                            Colors.grey,
+                                            BlendMode.saturation,
+                                          ),
+                                          child: Image.asset(
+                                            Const.imgLogo,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                     options: CarouselOptions(

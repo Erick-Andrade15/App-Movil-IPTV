@@ -225,10 +225,10 @@ class Repository {
         //Formato URL
         movie.urlMovie =
             '${sessionUserData.serverInfo?.serverProtocol}://${sessionUserData.serverInfo?.url}:${sessionUserData.serverInfo?.port}/movie/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.password}/${movie.idMovie}.${movie.extensionUrl}';
-        //ELIMINAR (2010) DE PELICULAS //OJO
-        if (movie.titleMovie!.contains(RegExp(r'\((\d{4})\)'))) {
-          movie.titleMovie =
-              movie.titleMovie!.replaceAll(RegExp(r'\((\d{4})\)'), '').trim();
+        //ELIMINAR (2010) DE PELICULAS  //OJO
+        if (movie.nameMovie!.contains(RegExp(r'\((\d{4})\)'))) {
+          movie.nameMovie =
+              movie.nameMovie!.replaceAll(RegExp(r'\((\d{4})\)'), '').trim();
         }
       }
 
@@ -304,7 +304,7 @@ class Repository {
       //AGREGAMOS LOS CANALES
       List<ClsChannel> channels = await getLiveChannels();
       jsonChannel = jsonEncode(channels);
-      
+
       //ACTUALIZAR FAVORITES Y CATCHUP
 
       await Future.wait([
@@ -484,11 +484,18 @@ class Repository {
   //AGREGAMOS LOCAL STORAGE
   Future<void> saveM3UToSecureStorage(String jsonChannels, String jsonMovies,
       String jsonTvShows, String jsonCategory) async {
+    var list = jsonEncode([]);
     await Future.wait([
       storageService.writeSecureData('SessionJsonChannels', jsonChannels),
       storageService.writeSecureData('SessionJsonMovies', jsonMovies),
       storageService.writeSecureData('SessionJsonTvShows', jsonTvShows),
       storageService.writeSecureData('SessionJsonCategory', jsonCategory),
+      storageService.writeSecureData('SessionJsonCatchUpChannels', list),
+      storageService.writeSecureData('SessionJsonCatchUpMovies', list),
+      storageService.writeSecureData('SessionJsonCatchUpSeries', list),
+      storageService.writeSecureData('SessionJsonFavoriteChannels', list),
+      storageService.writeSecureData('SessionJsonFavoriteMovies', list),
+      storageService.writeSecureData('SessionJsonFavoriteSeries', list),
     ]);
   }
 
