@@ -203,7 +203,7 @@ class MoviesViewModel {
     int idTMDBMovie = result?["id"] ?? 0;
     String overview = result?['overview'] ?? "";
     String releaseDate = result?['release_date'] ?? "";
-    double voteAverage = result?['vote_average'] ?? 7.23;
+    double voteAverage = result?['vote_average'] ?? movie.ratingMovie;
     String posterPath = await getMovieImage(movie);
     String urlTrailer = "";
     List<dynamic> genres = [];
