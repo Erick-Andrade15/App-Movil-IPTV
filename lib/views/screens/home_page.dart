@@ -145,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                           child: Container(
                               padding: const EdgeInsets.all(10),
                               child: Text(
-                                Globals.channelUrl!.nameChannel!,
+                                '${Globals.channelUrl?.nameChannel ?? 'Unknown Channel'} ---------- $isPlaying',
                                 style: Const.fontBodyTextStyle,
                               )),
                         ),

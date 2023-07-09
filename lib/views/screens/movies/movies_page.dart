@@ -566,7 +566,7 @@ class _MoviesPageState extends State<MoviesPage> {
                                           ],
                                         ),
                                         Text(
-                                          movies[index].nameMovie!,
+                                          movies[index].titleMovie!,
                                           textAlign: TextAlign.center,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,

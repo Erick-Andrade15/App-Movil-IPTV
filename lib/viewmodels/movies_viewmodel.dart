@@ -52,12 +52,12 @@ class MoviesViewModel {
     if (category.isEmpty) {
       return movies
           .where(
-              (x) => x.nameMovie!.toLowerCase().contains(search.toLowerCase()))
+              (x) => x.titleMovie!.toLowerCase().contains(search.toLowerCase()))
           .toList();
     } else {
       return movies
           .where((x) =>
-              x.nameMovie!.toLowerCase().contains(search.toLowerCase()) &&
+              x.titleMovie!.toLowerCase().contains(search.toLowerCase()) &&
               x.categoryId == category)
           .toList();
     }
@@ -73,7 +73,7 @@ class MoviesViewModel {
     List<ClsMovies> movies = Globals.globalCatchUpMovies;
     return movies
         .where(
-            (x) => x.nameMovie!.toLowerCase().contains(search.toLowerCase()))
+            (x) => x.titleMovie!.toLowerCase().contains(search.toLowerCase()))
         .toList();
   }
 
@@ -114,7 +114,7 @@ class MoviesViewModel {
     List<ClsMovies> movies = Globals.globalFavoriteMovies;
     return movies
         .where(
-            (x) => x.nameMovie!.toLowerCase().contains(search.toLowerCase()))
+            (x) => x.titleMovie!.toLowerCase().contains(search.toLowerCase()))
         .toList();
   }
 
@@ -125,7 +125,7 @@ class MoviesViewModel {
       favoriteMovies.remove(movie);
       // updateMovieFavorite(movie, false);
       EasyLoading.showToast(
-        'Movie "${movie.nameMovie}" removed from favorites',
+        'Movie "${movie.titleMovie}" removed from favorites',
         duration: const Duration(seconds: 2),
         toastPosition: EasyLoadingToastPosition.bottom,
         maskType: EasyLoadingMaskType.none,
@@ -135,7 +135,7 @@ class MoviesViewModel {
       favoriteMovies.insert(0, movie);
       // updateMovieFavorite(movie, true);
       EasyLoading.showToast(
-        'Movie "${movie.nameMovie}" added to favorites',
+        'Movie "${movie.titleMovie}" added to favorites',
         duration: const Duration(seconds: 2),
         toastPosition: EasyLoadingToastPosition.bottom,
         maskType: EasyLoadingMaskType.none,
@@ -178,11 +178,11 @@ class MoviesViewModel {
           // Verifica si el título de la película ya existe en uniqueMovies
           //o si hay algún título en uniqueMovies que es contenido por el título de la película actual
           var isDuplicate = uniqueMovies.any((title) =>
-              title.contains(movie.nameMovie!.toLowerCase()) ||
-              movie.nameMovie!.toLowerCase().contains(title));
+              title.contains(movie.titleMovie!.toLowerCase()) ||
+              movie.titleMovie!.toLowerCase().contains(title));
           if (!isDuplicate) {
             // Agrega el título de la película actual a uniqueMovies
-            uniqueMovies.add(movie.nameMovie!.toLowerCase());
+            uniqueMovies.add(movie.titleMovie!.toLowerCase());
             return true;
           }
           return false;
@@ -195,7 +195,7 @@ class MoviesViewModel {
 
   Future<TMDBMovies> getAllDataMovies(ClsMovies movie) async {
     var movieTMDB = await TMDBService.tmdbApi.v3.search
-        .queryMovies(movie.nameMovie!, language: "es-EC");
+        .queryMovies(movie.titleMovie!, language: "es-EC");
 
     final result = movieTMDB['results']?.isNotEmpty ?? false
         ? movieTMDB['results'][0]
@@ -238,7 +238,7 @@ class MoviesViewModel {
       imageUrl = movie.streamImg!;
     } else {
       var movieTMDB =
-          await TMDBService.tmdbApi.v3.search.queryMovies(movie.nameMovie!);
+          await TMDBService.tmdbApi.v3.search.queryMovies(movie.titleMovie!);
       if (movieTMDB['results']?.isNotEmpty ?? false) {
         final result = movieTMDB['results'][0];
         imageUrl = result['poster_path'] != null
@@ -267,15 +267,15 @@ class MoviesViewsModel {
     String imageUrl = ''; // Variable para almacenar la URL de la imagen
 
     // Verificar si la imagen está en la caché
-    if (movieImageCache.containsKey(movie.nameMovie)) {
-      imageUrl = movieImageCache[movie.nameMovie]!;
+    if (movieImageCache.containsKey(movie.titleMovie)) {
+      imageUrl = movieImageCache[movie.titleMovie]!;
     } else {
       var response = await validateImage(movie.streamImg!);
       if (response) {
         imageUrl = movie.streamImg!;
       } else {
         var movieTMDB =
-            await TMDBService.tmdbApi.v3.search.queryMovies(movie.nameMovie!);
+            await TMDBService.tmdbApi.v3.search.queryMovies(movie.titleMovie!);
         if (movieTMDB['results']?.isNotEmpty ?? false) {
           final result = movieTMDB['results'][0];
           imageUrl = result['poster_path'] != null
@@ -285,7 +285,7 @@ class MoviesViewsModel {
       }
 
       // Almacenar la imagen en la caché
-      movieImageCache[movie.nameMovie!] = imageUrl;
+      movieImageCache[movie.titleMovie!] = imageUrl;
     }
 
     return imageUrl;

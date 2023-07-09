@@ -226,9 +226,9 @@ class Repository {
         movie.urlMovie =
             '${sessionUserData.serverInfo?.serverProtocol}://${sessionUserData.serverInfo?.url}:${sessionUserData.serverInfo?.port}/movie/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.password}/${movie.idMovie}.${movie.extensionUrl}';
         //ELIMINAR (2010) DE PELICULAS
-        if (movie.nameMovie!.contains(RegExp(r'\((\d{4})\)'))) {
-          movie.nameMovie =
-              movie.nameMovie!.replaceAll(RegExp(r'\((\d{4})\)'), '').trim();
+        if (movie.titleMovie!.contains(RegExp(r'\((\d{4})\)'))) {
+          movie.titleMovie =
+              movie.titleMovie!.replaceAll(RegExp(r'\((\d{4})\)'), '').trim();
         }
       }
 
@@ -375,11 +375,6 @@ class Repository {
       //AGREGAMOS LAS PELICULAS
       List<ClsMovies> movies = await getAllMovies();
       jsonMovies = jsonEncode(movies);
-
-      await Future.wait([
-        storageService.deleteSecureData('SessionJsonMovies'),
-        storageService.deleteSecureData('SessionJsonCategory'),
-      ]);
 
       await Future.wait([
         storageService.writeSecureData('SessionJsonMovies', jsonMovies),

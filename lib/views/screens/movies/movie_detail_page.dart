@@ -67,7 +67,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       appBar: AppBar(
         toolbarHeight: 60,
         centerTitle: true,
-        title: Text(widget.clsMovies.nameMovie!),
+        title: Text(widget.clsMovies.titleMovie!),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         leading: IconButton(

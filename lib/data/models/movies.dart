@@ -26,8 +26,8 @@ class ClsMovies {
   factory ClsMovies.fromJson(Map<String, dynamic> json) => ClsMovies(
         numMovie: json["num"] ?? "",
         idMovie: json["stream_id"] ?? "",
-        nameMovie: json["title"] ?? "",//OJO
-        titleMovie: json["name"] ?? "",//OJO
+        nameMovie: json["name"] ?? "",
+        titleMovie: json["title"] ?? "",
         urlMovie: json["url"] ?? "",
         extensionUrl: json["container_extension"] ?? "",
         streamImg: json["stream_icon"] ?? "",
