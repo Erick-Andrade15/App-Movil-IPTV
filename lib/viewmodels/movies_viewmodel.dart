@@ -28,25 +28,6 @@ class MoviesViewModel {
     return movies;
   }
 
-  Future<List<ClsMovies>> allWMovies(String category) async {
-    List<ClsMovies> movies = Globals.globalMovies;
-
-// Filtrar las películas por categoría si se proporciona una
-    if (category.isNotEmpty) {
-      movies.where((movie) => movie.categoryId == category).map((movie) async {
-        movie.streamImg = await getMovieImage(movie);
-        return movie;
-      }).toList();
-    }
-
-    // Obtener todas las imágenes de las películas de forma asíncrona
-    await Future.forEach(movies, (ClsMovies movie) async {
-      movie.streamImg = await getMovieImage(movie);
-    });
-
-    return movies;
-  }
-
   Future<List<ClsMovies>> searchMovies(String category, String search) async {
     List<ClsMovies> movies = Globals.globalMovies;
     if (category.isEmpty) {

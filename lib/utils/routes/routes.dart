@@ -2,6 +2,7 @@ import 'package:app_movil_iptv/utils/routes/routes_name.dart';
 import 'package:app_movil_iptv/views/screens/home_page.dart';
 import 'package:app_movil_iptv/views/screens/login_page.dart';
 import 'package:app_movil_iptv/views/screens/movies/movies_page.dart';
+import 'package:app_movil_iptv/views/screens/series/series_page.dart';
 import 'package:app_movil_iptv/views/screens/settings/catch_up.dart';
 import 'package:app_movil_iptv/views/screens/settings/clear_cache.dart';
 import 'package:app_movil_iptv/views/screens/settings/favorites.dart';
@@ -37,8 +38,8 @@ class Routes {
             builder: (BuildContext context) => const MoviesPage());
 
       case RoutesName.series:
-      // return MaterialPageRoute(
-      //    builder: (BuildContext context) => const SeriesPage());
+        return MaterialPageRoute(
+            builder: (BuildContext context) => const SeriesPage());
 
       case RoutesName.settings:
         return MaterialPageRoute(
