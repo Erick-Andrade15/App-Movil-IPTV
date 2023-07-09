@@ -30,6 +30,8 @@ class _MainAppbarState extends State<MainAppbar> {
   late FocusNode iconButtonFocusNode;
   late FocusNode settingsButtonFocusNode;
 
+  late bool isUpdateContent = false;
+
   @override
   void initState() {
     _timeString = DateFormat('hh:mm a').format(DateTime.now());
@@ -78,8 +80,17 @@ class _MainAppbarState extends State<MainAppbar> {
             tooltip: "Update All Content",
             iconSize: 40,
             icon: const Icon(Icons.downloading),
-            onPressed: () {
-              viewModelHome.updateAllM3U();
+            onPressed: () async {
+              await viewModelHome.updateAllM3U().then((value) {
+                if (widget.pageRoute == 'home_page') {
+                  Navigator.pushReplacementNamed(context, RoutesName.home);
+                } else {
+                  setState(() {
+                    isUpdateContent = true;
+                  });
+                  widget.togglePlayingChannel!(true);
+                }
+              });
               //  //if (widget.pageRoute == 'home_page') {
               // widget.togglePlayingChannel!(true);
               // }
@@ -100,8 +111,12 @@ class _MainAppbarState extends State<MainAppbar> {
                   widget.togglePlayingChannel!(true);
                 });
               } else {
+                isUpdateContent
+                    ? Navigator.pushReplacementNamed(context, RoutesName.home)
+                    : Navigator.of(context).pop(RoutesName.home);
+
                 //widget.togglePlayingChannel!(true);
-                Navigator.of(context).pop(RoutesName.home);
+                // Navigator.of(context).pop(RoutesName.home);
               }
             },
             color: Const.colorWhite),

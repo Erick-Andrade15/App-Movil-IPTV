@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 class HomeViewModel {
   final Repository repository = Repository();
 
-  void updateAllM3U() {
-    repository.loadAllM3u();
+  Future<void> updateAllM3U() async {
+    await repository.loadAllM3u();
   }
 
   String expirationDate(String? timestamp) {

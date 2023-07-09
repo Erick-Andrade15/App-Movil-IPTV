@@ -225,7 +225,7 @@ class Repository {
         //Formato URL
         movie.urlMovie =
             '${sessionUserData.serverInfo?.serverProtocol}://${sessionUserData.serverInfo?.url}:${sessionUserData.serverInfo?.port}/movie/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.password}/${movie.idMovie}.${movie.extensionUrl}';
-        //ELIMINAR (2010) DE PELICULAS  //OJO
+        //ELIMINAR (2010) DE PELICULAS
         if (movie.nameMovie!.contains(RegExp(r'\((\d{4})\)'))) {
           movie.nameMovie =
               movie.nameMovie!.replaceAll(RegExp(r'\((\d{4})\)'), '').trim();
@@ -305,11 +305,39 @@ class Repository {
       List<ClsChannel> channels = await getLiveChannels();
       jsonChannel = jsonEncode(channels);
 
-      //ACTUALIZAR FAVORITES Y CATCHUP
+      //ACTUALIZAR FAVORITES
+      for (int i = 0; i < Globals.globalFavoriteChannel.length; i++) {
+        ClsChannel favoriteChannel = Globals.globalFavoriteChannel[i];
+        //SI EL NOMBRE DEL CANAL ESTA EN FAVORITOS
+        int index = channels.indexWhere(
+          (channel) => channel.nameChannel == favoriteChannel.nameChannel,
+        );
+        if (index != -1) {
+          // Actualiza los datos del canal favorito con los datos de channels
+          Globals.globalFavoriteChannel[i] = channels[index];
+        }
+      }
+
+      //ACTUALIZAR CATCH-UP
+      for (int i = 0; i < Globals.globalCatchUpChannel.length; i++) {
+        ClsChannel catchUpChannel = Globals.globalCatchUpChannel[i];
+        // SI EL NOMBRE DEL CANAL ESTÁ EN CATCH-UP
+        int index = channels.indexWhere(
+          (channel) => channel.nameChannel == catchUpChannel.nameChannel,
+        );
+        if (index != -1) {
+          // Actualiza los datos del canal de catch-up con los datos de channels
+          Globals.globalCatchUpChannel[i] = channels[index];
+        }
+      }
 
       await Future.wait([
         storageService.writeSecureData('SessionJsonChannels', jsonChannel),
         storageService.writeSecureData('SessionJsonCategory', jsonCategory),
+        storageService.writeSecureData('SessionJsonCatchUpChannels',
+            jsonEncode(Globals.globalCatchUpChannel)),
+        storageService.writeSecureData('SessionJsonFavoriteChannels',
+            jsonEncode(Globals.globalFavoriteChannel)),
       ]);
 
       await Globals.loadGlobalsFromStorage();
