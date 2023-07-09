@@ -8,14 +8,14 @@ class ClsCategory {
 
   String categoryId;
   String categoryName;
-  int? parentId;
+  String? parentId;
   String? type;
 
   factory ClsCategory.fromJson(Map<String, dynamic> jsonData) => ClsCategory(
-        categoryId: jsonData['category_id'] ?? "",
-        categoryName: jsonData['category_name'] ?? "",
-        parentId: jsonData['parent_id'] ?? "",
-        type: jsonData['type'] ?? "",
+        categoryId: jsonData['category_id'].toString(),
+        categoryName: jsonData['category_name'].toString(),
+        parentId: jsonData['parent_id'].toString(),
+        type: jsonData['type'].toString(),
       );
 
   Map<String, dynamic> toJson() => {

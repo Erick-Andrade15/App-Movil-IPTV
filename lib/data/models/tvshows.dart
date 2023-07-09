@@ -1,10 +1,10 @@
 class ClsTvShows {
-  int? numTvShow;
-  int? idTvShow;
+  String? numTvShow;
+  String? idTvShow;
   String? nameTvShow;
   String? titleTvShow;
   String? streamImg;
-  dynamic ratingTvShow;
+  String? ratingTvShow;
   String? categoryId;
   //List<ClsCategory> categories;
 
@@ -19,13 +19,13 @@ class ClsTvShows {
   });
 
   factory ClsTvShows.fromJson(Map<String, dynamic> json) => ClsTvShows(
-        numTvShow: json["num"] ?? "",
-        idTvShow: json["series_id"] ?? "",
-        nameTvShow: json["name"] ?? "",
-        titleTvShow: json["title"] ?? "",
-        streamImg: json["cover"] ?? "",
-        ratingTvShow: json["rating"] ?? "",
-        categoryId: json["category_id"] ?? "",
+        numTvShow: json["num"].toString(),
+        idTvShow: json["series_id"].toString(),
+        nameTvShow: json["name"].toString(),
+        titleTvShow: json["title"].toString(),
+        streamImg: json["cover"].toString(),
+        ratingTvShow: json["rating"].toString(),
+        categoryId: json["category_id"].toString(),
         //categories: List<ClsCategory>.from(
         //    json["categories"].map((x) => ClsCategory.fromJson(x))),
       );

@@ -1,12 +1,12 @@
 class ClsMovies {
-  int? numMovie;
-  int? idMovie;
+  String? numMovie;
+  String? idMovie;
   String? nameMovie;
   String? titleMovie;
   String? urlMovie; //URL
   String? extensionUrl;
   String? streamImg;
-  dynamic ratingMovie;
+  String? ratingMovie;
   String? categoryId;
 
   //List<ClsCategory> categories;
@@ -24,15 +24,15 @@ class ClsMovies {
   });
 
   factory ClsMovies.fromJson(Map<String, dynamic> json) => ClsMovies(
-        numMovie: json["num"] ?? "",
-        idMovie: json["stream_id"] ?? "",
-        nameMovie: json["name"] ?? "",
-        titleMovie: json["title"] ?? "",
-        urlMovie: json["url"] ?? "",
-        extensionUrl: json["container_extension"] ?? "",
-        streamImg: json["stream_icon"] ?? "",
-        ratingMovie: json["rating"] ?? "",
-        categoryId: json["category_id"] ?? "",
+        numMovie: json["num"].toString(),
+        idMovie: json["stream_id"].toString(),
+        nameMovie: json["name"].toString(),
+        titleMovie: json["title"].toString(),
+        urlMovie: json["url"].toString(),
+        extensionUrl: json["container_extension"].toString(),
+        streamImg: json["stream_icon"].toString(),
+        ratingMovie: json["rating"].toString(),
+        categoryId: json["category_id"].toString(),
         // categories: List<ClsCategory>.from(
         //  json["categories"].map((x) => ClsCategory.fromJson(x))),
       );
