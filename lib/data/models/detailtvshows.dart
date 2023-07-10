@@ -1,13 +1,11 @@
-import 'package:app_movil_iptv/data/models/tvshows.dart';
-
 class ClsDetailTvShows {
-  final List<ClsSeasonTvShow>? seasonsTvShows;
-  final ClsTvShows? infoTvShows;
+  List<ClsSeasonTvShow>? seasonsTvShows;
+  //final ClsTvShows? infoTvShows;
   final Map<String, List<ClsEpisodeTvShow?>?>? episodesTvShows;
 
   ClsDetailTvShows({
     this.seasonsTvShows,
-    this.infoTvShows,
+    //  this.infoTvShows,
     this.episodesTvShows,
   });
 
@@ -18,8 +16,8 @@ class ClsDetailTvShows {
       return ClsSeasonTvShow.fromJson(season as Map<String, dynamic>);
     }).toList();
     //INFO  SERIE
-    final info = json['info'] as Map<String, dynamic>?;
-    final parsedInfo = info != null ? ClsTvShows.fromJson(info) : null;
+    //  final info = json['info'] as Map<String, dynamic>?;
+    // final parsedInfo = info != null ? ClsTvShows.fromJson(info) : null;
     //EPISODES
     final episodesJson = json['episodes'] as Map<String, dynamic>?;
     final parsedEpisodes = episodesJson?.map((key, value) {
@@ -32,34 +30,14 @@ class ClsDetailTvShows {
 
     return ClsDetailTvShows(
       seasonsTvShows: parsedSeasons,
-      infoTvShows: parsedInfo,
+      //   infoTvShows: parsedInfo,
       episodesTvShows: parsedEpisodes,
     );
   }
 
-  ClsDetailTvShows.fromJSson(Map<String, dynamic> json)
-      : seasonsTvShows = json['season'] == null
-            ? []
-            : (json['season'] as List?)
-                ?.map(
-                    (e) => ClsSeasonTvShow.fromJson(e as Map<String, dynamic>))
-                .toList(),
-        infoTvShows = (json['info'] as Map<String, dynamic>?) != null
-            ? ClsTvShows.fromJson(json['info'] as Map<String, dynamic>)
-            : null,
-        episodesTvShows =
-            (json['episodes'] as Map<String, dynamic>).map((key, value) {
-          return MapEntry(
-              key,
-              (value as List<dynamic>)
-                  .map((dynamic e) =>
-                      ClsEpisodeTvShow.fromJson(e as Map<String, dynamic>))
-                  .toList());
-        });
-
   Map<String, dynamic> toJson() => {
         'seasons': seasonsTvShows?.map((season) => season.toJson()).toList(),
-        'info': infoTvShows?.toJson(),
+        // 'info': infoTvShows?.toJson(),
         'episodes': episodesTvShows?.map((key, value) {
           return MapEntry(
               key, value?.map((episode) => episode?.toJson()).toList());
@@ -114,7 +92,7 @@ class ClsEpisodeTvShow {
   final String? idSeason;
   final String? numEpisode;
   final String? titleEpisode;
-  final String? urlEpisode; //URL
+  String? urlEpisode; //URL
   final String? extensionUrl;
   final InfoEpisode? infoEpisode;
 

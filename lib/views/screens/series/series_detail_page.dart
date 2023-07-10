@@ -2,6 +2,7 @@ import 'package:app_movil_iptv/data/models/tmdb/tmdb_tvshows.dart';
 import 'package:app_movil_iptv/data/models/tvshows.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/viewmodels/series_viewmodel.dart';
+import 'package:app_movil_iptv/views/screens/series/serie_episode_page.dart';
 import 'package:app_movil_iptv/views/widgets/trailer_video.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -84,10 +85,10 @@ class _SerieDetailPageState extends State<SerieDetailPage> {
             onPressed: () {
               viewModelSeries
                   .addToFavoriteSeries(widget.clsTvShows)
-                   .then((value) => setState(() {
+                  .then((value) => setState(() {
                         isfavorite =
-                          viewModelSeries.isSeriesFavorite(widget.clsTvShows);
-                    }));
+                            viewModelSeries.isSeriesFavorite(widget.clsTvShows);
+                      }));
             },
           ),
         ],
@@ -119,31 +120,55 @@ class _SerieDetailPageState extends State<SerieDetailPage> {
                     children: [
                       Flexible(
                         flex: 3,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: FadeInImage.memoryNetwork(
-                            placeholder: kTransparentImage,
-                            image: dataTvShowsTMDB!.posterPath,
-                            height: 290.0,
-                            width: 200.0,
-                            fit: BoxFit.cover,
-                            fadeInDuration: const Duration(milliseconds: 300),
-                            fadeOutDuration: const Duration(milliseconds: 300),
-                            imageErrorBuilder: (context, url, error) =>
-                                Container(
-                              height: 290.0,
-                              width: 200.0,
-                              color: Colors.grey,
-                              child: ColorFiltered(
-                                colorFilter: const ColorFilter.mode(
-                                    Colors.grey, BlendMode.saturation),
-                                child: Image.asset(
-                                  Const.imgLogo,
-                                  fit: BoxFit.contain,
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Container(
+                                height: 290.0,
+                                width: 200.0,
+                                color: Colors.grey,
+                                child: ColorFiltered(
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.grey,
+                                    BlendMode.saturation,
+                                  ),
+                                  child: Image.asset(
+                                    Const.imgLogo,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: FadeInImage.memoryNetwork(
+                                placeholder: kTransparentImage,
+                                image: dataTvShowsTMDB!.posterPath,
+                                height: 290.0,
+                                width: 200.0,
+                                fit: BoxFit.cover,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 300),
+                                fadeOutDuration:
+                                    const Duration(milliseconds: 300),
+                                imageErrorBuilder: (context, url, error) =>
+                                    Container(
+                                  height: 290.0,
+                                  width: 200.0,
+                                  color: Colors.grey,
+                                  child: ColorFiltered(
+                                    colorFilter: const ColorFilter.mode(
+                                        Colors.grey, BlendMode.saturation),
+                                    child: Image.asset(
+                                      Const.imgLogo,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Expanded(
@@ -253,7 +278,16 @@ class _SerieDetailPageState extends State<SerieDetailPage> {
                                     MaterialButton(
                                       minWidth: 175,
                                       height: 50,
-                                      onPressed: () {},
+                                      onPressed: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                SerieEpisodePage(
+                                              idTMDB:
+                                                  dataTvShowsTMDB.idTMDBTvshows,
+                                              clsTvShows: widget.clsTvShows,
+                                            ),
+                                          )),
                                       color: Const.colorPurpleMedium,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -315,7 +349,14 @@ class _SerieDetailPageState extends State<SerieDetailPage> {
                                 MaterialButton(
                                   minWidth: 175,
                                   height: 50,
-                                  onPressed: () {},
+                                  onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SerieEpisodePage(
+                                          idTMDB: dataTvShowsTMDB.idTMDBTvshows,
+                                          clsTvShows: widget.clsTvShows,
+                                        ),
+                                      )),
                                   color: Const.colorPurpleMedium,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30)),

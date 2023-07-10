@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_movil_iptv/data/models/category.dart';
 import 'package:app_movil_iptv/data/models/channel.dart';
+import 'package:app_movil_iptv/data/models/detailtvshows.dart';
 import 'package:app_movil_iptv/data/models/movies.dart';
 import 'package:app_movil_iptv/data/models/tvshows.dart';
 import 'package:app_movil_iptv/data/models/user.dart';
@@ -160,6 +161,7 @@ class Repository {
   Future<List<ClsChannel>> getLiveChannels() async {
     try {
       ClsUsers sessionUserData;
+      //OJO
       if (userData.userInfo == null || userData.serverInfo == null) {
         dynamic localStorageUser =
             await storageService.readSecureData('SessionJsonUser');
@@ -436,6 +438,45 @@ class Repository {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// DETAIL SERIE - SEASON EPISODE
+  Future<ClsDetailTvShows?> getSerieDetails(String serieId) async {
+    try {
+      dynamic jsonUserData =
+          await storageService.readSecureData('SessionJsonUser');
+      userData = ClsUsers.fromJson(jsonDecode(jsonUserData));
+
+      const url = 'player_api.php'; //'get.php';
+      final parametersQuery = {
+        'username': userData.userInfo?.username,
+        'password': userData.userInfo?.password,
+        "action": "get_series_info",
+        "series_id": serieId,
+      };
+      dynamic jsonData =
+          json.decode(await apiServices.getResponse(url, parametersQuery));
+
+      if (jsonData != null) {
+        ClsDetailTvShows detailTvShows = ClsDetailTvShows.fromJson(jsonData);
+
+        // Modificar el campo urlEpisode de todos los objetos ClsEpisodeTvShow
+        detailTvShows.episodesTvShows?.forEach((key, value) {
+          value?.forEach((episode) {
+            // Reemplaza "nueva_url" con la URL que desees asignar
+            episode!.urlEpisode =
+                '${userData.serverInfo?.serverProtocol}://${userData.serverInfo?.url}:${userData.serverInfo?.port}/series/${userData.userInfo?.username}/${userData.userInfo?.password}/${episode.idEpisode}.${episode.extensionUrl}';
+          });
+        });
+
+        return detailTvShows;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
+      return null;
     }
   }
 

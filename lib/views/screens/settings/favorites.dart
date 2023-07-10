@@ -346,9 +346,9 @@ class FavoriteMoviesWidget extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 4, vertical: 8),
                                     child: Text(
-                                      movies[index]
-                                          .ratingMovie!
-                                          .toStringAsFixed(1),
+                                      double.parse(movies[index].ratingMovie!)
+                                          .toStringAsFixed(1)
+                                          .toString(),
                                       style: Const.fontSubtitleTextStyle,
                                     ),
                                   )

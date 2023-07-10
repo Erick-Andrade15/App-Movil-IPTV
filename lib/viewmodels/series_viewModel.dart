@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_movil_iptv/data/models/category.dart';
+import 'package:app_movil_iptv/data/models/detailtvshows.dart';
 import 'package:app_movil_iptv/data/models/tmdb/tmdb_detail_tvshows.dart';
 import 'package:app_movil_iptv/data/models/tmdb/tmdb_tvshows.dart';
 import 'package:app_movil_iptv/data/models/tvshows.dart';
@@ -174,25 +175,46 @@ class SeriesViewModel {
         urlTrailer, voteAverage, genres.join(", "));
   }
 
+  Future<ClsDetailTvShows> getAllDataDetailTvShows(ClsTvShows tvShows) async {
+    ClsDetailTvShows? detailTvShows =
+        await repository.getSerieDetails(tvShows.idTvShow!.toString());
+
+    // Filtrar las temporadas que tienen un número mayor que 0
+    List<ClsSeasonTvShow>? filteredSeasons = detailTvShows?.seasonsTvShows
+        ?.where((season) =>
+            int.parse(season.numberSeason!) > 0 &&
+            detailTvShows.episodesTvShows?[season.numberSeason] != null)
+        .toList();
+    //Actualizar si existen episodios en esa temporada me muestra esa temporada, caso contrario no me lo muestra
+    detailTvShows?.seasonsTvShows = filteredSeasons;
+
+    return detailTvShows!;
+  }
+
   Future<TMDBDetailTvShows> getAllDataEpisode(
       int idtvshow, int season, int episode) async {
-    String nametitle = "";
-    String overview = "";
-    String posterPath = "";
-    var tvshowsEpisodeTMDB = await TMDBService.tmdbApi.v3.tvEpisodes
-        .getDetails(idtvshow, season, episode, language: "es-EC");
-    if (tvshowsEpisodeTMDB['name']?.isNotEmpty ?? false) {
-      nametitle = tvshowsEpisodeTMDB['name'];
-    }
-    if (tvshowsEpisodeTMDB['overview']?.isNotEmpty ?? false) {
-      overview = tvshowsEpisodeTMDB['overview'];
-    }
-    if (tvshowsEpisodeTMDB['still_path']?.isNotEmpty ?? false) {
-      posterPath =
-          'https://image.tmdb.org/t/p/w500${tvshowsEpisodeTMDB['still_path']}';
-    }
+    try {
+      String nametitle = "";
+      String overview = "";
+      String posterPath = "";
+      var tvshowsEpisodeTMDB = await TMDBService.tmdbApi.v3.tvEpisodes
+          .getDetails(idtvshow, season, episode, language: "es-EC");
+      if (tvshowsEpisodeTMDB['name']?.isNotEmpty ?? false) {
+        nametitle = tvshowsEpisodeTMDB['name'];
+      }
+      if (tvshowsEpisodeTMDB['overview']?.isNotEmpty ?? false) {
+        overview = tvshowsEpisodeTMDB['overview'];
+      }
+      if (tvshowsEpisodeTMDB['still_path']?.isNotEmpty ?? false) {
+        posterPath =
+            'https://image.tmdb.org/t/p/w500${tvshowsEpisodeTMDB['still_path']}';
+      }
 
-    return TMDBDetailTvShows(nametitle, overview, posterPath);
+      return TMDBDetailTvShows(nametitle, overview, posterPath);
+    } catch (e) {
+      print("Error: $e");
+      return TMDBDetailTvShows('', '', '');
+    }
   }
 
   ///CONTROLS
