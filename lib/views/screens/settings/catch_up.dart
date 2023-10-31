@@ -3,7 +3,7 @@ import 'package:app_movil_iptv/data/models/movies.dart';
 import 'package:app_movil_iptv/data/models/tvshows.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/viewmodels/movies_viewmodel.dart';
-import 'package:app_movil_iptv/viewmodels/series_viewModel.dart';
+import 'package:app_movil_iptv/viewmodels/series_viewmodel.dart';
 import 'package:app_movil_iptv/viewmodels/tvlive_viewmodel.dart';
 import 'package:app_movil_iptv/views/screens/movies/movie_detail_page.dart';
 import 'package:app_movil_iptv/views/screens/series/series_detail_page.dart';
