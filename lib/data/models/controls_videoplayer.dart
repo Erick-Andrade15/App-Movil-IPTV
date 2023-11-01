@@ -1,31 +1,31 @@
 import 'package:app_movil_iptv/data/models/channel.dart';
+import 'package:app_movil_iptv/data/models/movies.dart';
+import 'package:app_movil_iptv/data/models/tvshows.dart';
 
 class ClsControlsVideoPlayer {
   final VideoType videoType;
-  final String titleVideo; //Peliculs 2022 - Serie S01E02
   final int? idTMDB;
-  final String? nameVideo; //Pelicula - Serie
-  final String? imgChannel;
-  final int? seasonTvShow;
-  final int? episodeTvShow;
-  final bool? isSimplifiedTV;
+  //TV
+  final ClsChannel? clsChannel;
   final void Function(ClsChannel)? updateFutureChannelGlobal;
+  //MOVIES
+  final ClsMovies? clsMovies;
+  //SERIES
+  final ClsTvShows? clsTvShows;
+
 
   ClsControlsVideoPlayer({
     required this.videoType,
-    required this.titleVideo,
     this.idTMDB,
-    this.nameVideo,
-    this.imgChannel,
-    this.seasonTvShow,
-    this.episodeTvShow,
-    this.isSimplifiedTV,
+    this.clsChannel,
     this.updateFutureChannelGlobal,
+    this.clsMovies,
+    this.clsTvShows,
   });
 }
 
 enum VideoType {
-  //simplifiedTV,
+  simplifiedTV,
   tvChannel,
   movie,
   series,
