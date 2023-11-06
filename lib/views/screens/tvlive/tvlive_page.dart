@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:app_movil_iptv/data/models/category.dart';
 import 'package:app_movil_iptv/data/models/channel.dart';
+import 'package:app_movil_iptv/data/models/controls_videoplayer.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/utils/globals.dart';
 import 'package:app_movil_iptv/utils/routes/routes_name.dart';
 import 'package:app_movil_iptv/utils/utils.dart';
 import 'package:app_movil_iptv/viewmodels/tvlive_viewmodel.dart';
+import 'package:app_movil_iptv/views/widgets/video/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -122,8 +124,7 @@ class _TvLivePageState extends State<TvLivePage> {
       },
       child: OrientationBuilder(
         builder: (context, orientation) {
-          bool isHorizontal = orientation == Orientation.landscape;
-          if (isHorizontal) {
+          if (orientation == Orientation.landscape) {
             return FutureBuilder<ClsChannel>(
               future: futureChannelGlobal,
               builder: (context, snapshot) {
@@ -138,10 +139,13 @@ class _TvLivePageState extends State<TvLivePage> {
                   var channel = snapshot.data;
                   return Container(
                     color: Colors.black,
-                    child: Text(
-                      channel!.urlChannel!,
-                      style: Const.fontBodyTextStyle,
-                    ),
+                    child: VideoPlayer(
+                    url: channel!.urlChannel!,
+                    controls: ClsControlsVideoPlayer(
+                        videoType: VideoType.tvChannel,
+                        clsChannel: channel,
+                        updateFutureChannelGlobal: updateFutureChannel),
+                  ),
                   );
                 }
               },
@@ -176,9 +180,16 @@ class _TvLivePageState extends State<TvLivePage> {
                               ));
                             } else {
                               var channel = snapshot.data;
-                              return Text(
-                                channel!.urlChannel!,
-                                style: Const.fontBodyTextStyle,
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 200,
+                                child: VideoPlayer(
+                                  url: channel!.urlChannel!,
+                                  controls: ClsControlsVideoPlayer(
+                                    videoType: VideoType.simplifiedTV,
+                                    clsChannel: channel,
+                                  ),
+                                ),
                               );
                             }
                           },
