@@ -1,9 +1,11 @@
+import 'package:app_movil_iptv/data/models/controls_videoplayer.dart';
 import 'package:app_movil_iptv/data/models/detailtvshows.dart';
 import 'package:app_movil_iptv/data/models/tmdb/tmdb_detail_tvshows.dart';
 import 'package:app_movil_iptv/data/models/tvshows.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/utils/utils.dart';
 import 'package:app_movil_iptv/viewmodels/series_viewmodel.dart';
+import 'package:app_movil_iptv/views/widgets/video/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -22,7 +24,6 @@ class SerieEpisodePage extends StatefulWidget {
 
 class _SerieEpisodePageState extends State<SerieEpisodePage> {
   SeriesViewModel viewModelSeries = SeriesViewModel();
-
   late Future<ClsDetailTvShows>? futureDetailTvShows;
 
   @override
@@ -68,8 +69,6 @@ class _SerieEpisodePageState extends State<SerieEpisodePage> {
                     child: CircularProgressIndicator(),
                   ),
                 );
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
               } else if (snapshot.hasData) {
                 ClsDetailTvShows detailTvShows = snapshot.data!;
                 return DefaultTabController(
@@ -97,14 +96,11 @@ class _SerieEpisodePageState extends State<SerieEpisodePage> {
                       ),
                       Expanded(
                           child: TabBarView(
-                        children: detailTvShows.seasonsTvShows
-                                ?.where((season) =>
-                                    int.parse(season.numberSeason!) >= 1)
-                                .map((season) {
+                        children: detailTvShows.seasonsTvShows?.map((season) {
                               // Verifica si hay episodios para la temporada actual
                               List<ClsEpisodeTvShow?>? episodes = detailTvShows
                                   .episodesTvShows?[season.numberSeason];
-                              //SCROLL HACIA ARRIBA ERROR SIN SINGLECHILSCROLVIEW
+                              //SCROLL HACIA ARRIBA / ERROR DA SIN SINGLECHILSCROLVIEW
                               return SingleChildScrollView(
                                 child: ListView.builder(
                                   physics:
@@ -192,12 +188,8 @@ class _SerieEpisodePageState extends State<SerieEpisodePage> {
                                                               .isNotEmpty
                                                           ? detailTvShowsTMDB
                                                               .nametitle
-                                                          : episode.titleEpisode
-                                                                  ?.replaceAll(
-                                                                      RegExp(
-                                                                          r"\s-\sS\d{1,3}E\d{1,3}\s"),
-                                                                      " ")
-                                                                  .trim() ??
+                                                          : episode
+                                                                  .titleEpisode ??
                                                               '',
                                                       style: Const
                                                           .fontTitleTextStyle,
@@ -231,14 +223,30 @@ class _SerieEpisodePageState extends State<SerieEpisodePage> {
                                                               .addToCatchUpSeries(
                                                                   widget
                                                                       .clsTvShows);
-                                                          final snackBar = SnackBar(
-                                                              content: Text(
-                                                                  episode.urlEpisode ??
-                                                                      ''));
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(
-                                                                  snackBar);
+
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        VideoPlayer(
+                                                                  url: episode
+                                                                      .urlEpisode!,
+                                                                  controls:
+                                                                      ClsControlsVideoPlayer(
+                                                                    videoType:
+                                                                        VideoType
+                                                                            .series,
+                                                                    clsEpisodeTvShow:
+                                                                        episode,
+                                                                    clsTvShows:
+                                                                        widget
+                                                                            .clsTvShows,
+                                                                    idTMDB: widget
+                                                                        .idTMDB,
+                                                                  ),
+                                                                ),
+                                                              ));
                                                         },
                                                         color: Const
                                                             .colorPurpleMedium,
