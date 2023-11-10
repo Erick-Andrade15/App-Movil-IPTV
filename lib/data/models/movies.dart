@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class ClsMovies {
   String? numMovie;
   String? idMovie;
@@ -27,7 +29,8 @@ class ClsMovies {
         numMovie: json["num"].toString(),
         idMovie: json["stream_id"].toString(),
         nameMovie: json["name"].toString(),
-        titleMovie: json["title"].toString(),
+        titleMovie: decodeTitle(json['title']),
+        //titleMovie: json["title"].toString(),
         urlMovie: json["url"].toString(),
         extensionUrl: json["container_extension"].toString(),
         streamImg: json["stream_icon"].toString(),
@@ -48,4 +51,13 @@ class ClsMovies {
         "category_id": categoryId,
         // "categories": List<dynamic>.from(categories.map((x) => x.toJson())),
       };
+}
+
+String decodeTitle(String title) {
+  try {
+    return utf8.decode(latin1.encode(title));
+  } catch (e) {
+    // Manejar la excepción, por ejemplo, devolver una cadena vacía o el título original
+    return title;
+  }
 }
