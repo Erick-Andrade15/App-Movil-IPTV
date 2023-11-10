@@ -184,7 +184,7 @@ class MoviesViewModel {
     int idTMDBMovie = result?["id"] ?? 0;
     String overview = result?['overview'] ?? "";
     String releaseDate = result?['release_date'] ?? "";
-    double voteAverage = result?['vote_average'] ?? movie.ratingMovie;
+    dynamic voteAverage = result?['vote_average'] ?? movie.ratingMovie;
     String posterPath = await getMovieImage(movie);
     String urlTrailer = "";
     List<dynamic> genres = [];
@@ -237,7 +237,6 @@ class MoviesViewModel {
   }
 }
 
-
 class MoviesViewsModel {
   // Caché de imágenes de películas
   final Map<String, String> movieImageCache = {};
@@ -272,5 +271,4 @@ class MoviesViewsModel {
     return imageUrl;
   }
 
-  // ...
 }
