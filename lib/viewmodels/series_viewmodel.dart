@@ -10,6 +10,7 @@ import 'package:app_movil_iptv/data/services/storage_service.dart';
 import 'package:app_movil_iptv/data/services/tmdb_service.dart';
 import 'package:app_movil_iptv/data/services/validate_image.dart';
 import 'package:app_movil_iptv/utils/globals.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class SeriesViewModel {
@@ -186,7 +187,9 @@ class SeriesViewModel {
             detailTvShows.episodesTvShows?[season.numberSeason] != null)
         .toList();
     //Actualizar si existen episodios en esa temporada me muestra esa temporada, caso contrario no me lo muestra
-    detailTvShows?.seasonsTvShows = filteredSeasons;
+    detailTvShows?.seasonsTvShows = filteredSeasons
+        ?.where((season) => int.parse(season.numberSeason!) >= 1)
+        .toList();
 
     return detailTvShows!;
   }
@@ -212,13 +215,68 @@ class SeriesViewModel {
 
       return TMDBDetailTvShows(nametitle, overview, posterPath);
     } catch (e) {
-      print("Error: $e");
+      debugPrint("Error: $e");
       return TMDBDetailTvShows('', '', '');
     }
   }
 
   ///CONTROLS
   ///NEXT EPISODE
+  Future<ClsEpisodeTvShow?> findEpisode(ClsTvShows clsTvShows,
+      bool isNextEpisode, ClsEpisodeTvShow clsEpisodeTvShow) async {
+    int currentSeason = int.parse(clsEpisodeTvShow.idSeason!);
+    int currentEpisode = int.parse(clsEpisodeTvShow.numEpisode!);
+
+    ClsDetailTvShows allEpisodes = await getAllDataDetailTvShows(clsTvShows);
+    // 1. Filtrar la lista completa de episodios para obtener solo los de la temporada actual
+    List<ClsEpisodeTvShow?>? currentSeasonEpisodes = allEpisodes
+        .episodesTvShows![currentSeason.toString()]
+        ?.where((episode) => episode != null)
+        .cast<ClsEpisodeTvShow>()
+        .toList();
+    // 2. Ordenar la lista por número de episodio ascendente
+    currentSeasonEpisodes
+        ?.sort((a, b) => int.parse(a!.numEpisode!) - int.parse(b!.numEpisode!));
+    // 3. Encontrar el índice del episodio actual en la lista
+    int currentEpisodeIndex = currentSeasonEpisodes!
+        .indexWhere((e) => e!.numEpisode == currentEpisode.toString());
+    // 4. Si es el último episodio de la temporada actual y se busca el episodio siguiente,
+    //encontrar el primer episodio de la siguiente temporada
+    if (isNextEpisode) {
+      if (currentEpisodeIndex == currentSeasonEpisodes.length - 1) {
+        int nextSeason = currentSeason + 1;
+        List<ClsEpisodeTvShow?> hasNextSeason =
+            allEpisodes.episodesTvShows?[nextSeason.toString()] ?? [];
+        // Verificar si la siguiente temporada existe en la lista completa de episodios
+        if (hasNextSeason.isEmpty) {
+          return null; // Es el último episodio de la última temporada
+        }
+
+        ClsEpisodeTvShow? nextEpisode = hasNextSeason
+            .firstWhere((e) => e?.idSeason == nextSeason.toString());
+
+        return nextEpisode;
+      }
+      return currentSeasonEpisodes.elementAt(currentEpisodeIndex + 1);
+    } else {
+      if (currentSeason == 1 && currentEpisodeIndex == 0) {
+        return null; // Es el primer episodio de la primera temporada, no hay episodio anterior
+      }
+      // 5. Si es el primer episodio de la temporada actual y se busca el episodio anterior,
+      //encontrar el último episodio de la temporada anterior
+      if (currentEpisodeIndex == 0) {
+        int previousSeason = currentSeason - 1;
+
+        ClsEpisodeTvShow? previousEpisode = allEpisodes
+            .episodesTvShows![previousSeason.toString()]?.last;
+            
+        return previousEpisode;
+      }
+      // 7. Si se busca el episodio anterior y no se cumple la condición del paso 5,
+      //encontrar el episodio anterior en la misma temporada
+      return currentSeasonEpisodes.elementAt(currentEpisodeIndex - 1);
+    }
+  }
 
   Future<String> geSeriesImage(ClsTvShows movie) async {
     String imageUrl = ''; // Variable para almacenar la URL de la imagen
