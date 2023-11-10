@@ -1,3 +1,4 @@
+import 'package:app_movil_iptv/data/models/controls_videoplayer.dart';
 import 'package:app_movil_iptv/data/models/movies.dart';
 import 'package:app_movil_iptv/data/models/user.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
@@ -5,6 +6,7 @@ import 'package:app_movil_iptv/utils/globals.dart';
 import 'package:app_movil_iptv/utils/utils.dart';
 import 'package:app_movil_iptv/viewmodels/home_viewmodel.dart';
 import 'package:app_movil_iptv/viewmodels/movies_viewmodel.dart';
+import 'package:app_movil_iptv/views/widgets/video/video_player.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -63,9 +65,20 @@ class _CarruselEstrenosState extends State<CarruselEstrenos> {
                         (BuildContext context, int index, int realIndex) {
                       return GestureDetector(
                         onTap: () {
-                          final snackBar = SnackBar(
-                              content: Text(movies[index].urlMovie ?? ''));
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          widget.togglePlayingChannel(false);
+                          viewModelMovies.addToCatchUp(movies[index]);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VideoPlayer(
+                                  url: movies[index].urlMovie!,
+                                  controls: ClsControlsVideoPlayer(
+                                      videoType: VideoType.movie,
+                                      clsMovies: movies[index]),
+                                ),
+                              )).then((value) {
+                            widget.togglePlayingChannel(true);
+                          });
                         }, //VER PELICULA REPRODUCTOR
                         child: Stack(
                           alignment: Alignment.center,
