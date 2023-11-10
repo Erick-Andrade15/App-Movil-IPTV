@@ -4,7 +4,9 @@ import 'package:app_movil_iptv/data/models/category.dart';
 import 'package:app_movil_iptv/data/models/channel.dart';
 import 'package:app_movil_iptv/data/models/controls_videoplayer.dart';
 import 'package:app_movil_iptv/data/models/detailtvshows.dart';
+import 'package:app_movil_iptv/data/models/movies.dart';
 import 'package:app_movil_iptv/data/models/tmdb/tmdb_detail_tvshows.dart';
+import 'package:app_movil_iptv/data/models/tvshows.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/utils/globals.dart';
 import 'package:app_movil_iptv/utils/utils.dart';
@@ -42,32 +44,24 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
   late String titleCategory = "TODOS LOS CANALES";
   late String idCategorySearch = "";
   late ClsChannel? clsChannel;
-  //TV LIVE
-
   late bool isTvLive = false;
   late bool simplifiedTV = false;
-  //TVLIVE DRAWER
-  String appBarTitleTvLive = "TODOS LOS CANALES";
-
   // Variable para almacenar la función de actualización de futureChannelGlobal
   late Function(ClsChannel) updateFutureGlobalChannel;
 
   //--------------------MOVIES--------------------//
+  late ClsMovies clsMovies;
 
   //--------------------SERIES--------------------//
-
-  //SERIES ENDRAWER
   SeriesViewModel viewModelSeries = SeriesViewModel();
-  late Future<List<int>>? futureSeasonsList;
-
-  //SERIES
+  late Future<ClsDetailTvShows>? futureDetailTvShows;
+  late ClsEpisodeTvShow? clsDetailTvShows;
+  late ClsTvShows clsTvShows;
   late int tvShowIdTmdb;
-  late String tvShowName;
-  late int tvShowSeason;
-  late int tvShowEpisode;
   bool isTvShow = false;
+  ScrollController scrollController = ScrollController();
 
-  //CONTROLS
+  //--------------------CONTROLS--------------------//
   bool showsControls = false;
   final double initSnapshotRightPosition = 10;
   final double initSnapshotBottomPosition = 10;
@@ -85,11 +79,13 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
   //ASPECT RADIO
   int aspectRatioIndex = 0;
   List<String> aspectRatios = [
+    '',
     '16:9',
     '4:3',
     '3:2',
     '1:1',
   ];
+  //AUDIO Y SUBTITULOS
   int numberOfCaptions = 0;
   int numberOfAudioTracks = 0;
 
@@ -101,32 +97,30 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
 
     switch (_controlsVideoPlayer.videoType) {
       case VideoType.movie:
-        // Código para películas
         _controller.addListener(listener);
-        appBarTitle = Text(_controlsVideoPlayer.clsMovies!.nameMovie!);
+        clsMovies = _controlsVideoPlayer.clsMovies!;
+        appBarTitle = Text(clsMovies.nameMovie!);
         break;
       case VideoType.series:
-        // Código para series
+        isTvShow = true;
         _controller.addListener(listener);
         tvShowIdTmdb = _controlsVideoPlayer.idTMDB!;
-        isTvShow = true;
-
-        appBarTitle = Text(_controlsVideoPlayer.clsMovies!.nameMovie!);
+        clsDetailTvShows = _controlsVideoPlayer.clsEpisodeTvShow;
+        clsTvShows = _controlsVideoPlayer.clsTvShows!;
+        futureDetailTvShows =
+            viewModelSeries.getAllDataDetailTvShows(clsTvShows);
+        appBarTitle = Text(clsDetailTvShows!.titleEpisode!);
         break;
       case VideoType.tvChannel:
-        // Código para canales de TV
+        isTvLive = true;
         futureChannels = viewModelTvLive.allChannels('');
         futureCategory = viewModelTvLive.allCategoryTV();
-
-        isTvLive = true;
-
         clsChannel = _controlsVideoPlayer.clsChannel!;
         updateFutureGlobalChannel =
             _controlsVideoPlayer.updateFutureChannelGlobal!;
         break;
       case VideoType.simplifiedTV:
-        // Código para canales de TV SIMPLE
-
+        clsChannel = _controlsVideoPlayer.clsChannel!;
         simplifiedTV = true;
         break;
     }
@@ -167,7 +161,6 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
     _controller.setVideoAspectRatio(nextAspectRatio);
     // Variable para controlar si el diálogo ya ha sido cerrado
     bool dialogClosed = false;
-
     //MOSTRAR SHOWDIALOG DE ASPCT RADIO
     showDialog(
       context: context,
@@ -228,14 +221,54 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
     });
   }
 
-  List<ClsDetailTvShows> findEpisode(
-      List<ClsDetailTvShows> allEpisodes, bool isNextEpisode) {
-    return [];
+  Future<void> nextEpisode() async {
+    ClsEpisodeTvShow? episodeNext =
+        await viewModelSeries.findEpisode(clsTvShows, true, clsDetailTvShows!);
+    if (episodeNext != null) {
+      setState(() {
+        clsDetailTvShows = episodeNext;
+        appBarTitle = Text(episodeNext.titleEpisode!);
+      });
+      updateVideo(episodeNext.urlEpisode!);
+    } else {
+      EasyLoading.showError('No hay más episodios disponibles 😞.');
+    }
   }
 
-  Future<void> nextEpisode() async {}
+  Future<void> previousEpisode() async {
+    ClsEpisodeTvShow? episodePrevious =
+        await viewModelSeries.findEpisode(clsTvShows, false, clsDetailTvShows!);
+    if (episodePrevious != null) {
+      setState(() {
+        clsDetailTvShows = episodePrevious;
+        appBarTitle = Text(episodePrevious.titleEpisode!);
+      });
 
-  Future<void> previousEpisode() async {}
+      updateVideo(episodePrevious.urlEpisode!);
+    } else {
+      EasyLoading.showError('No hay más episodios disponibles 😞.');
+    }
+  }
+
+// Función para realizar el desplazamiento
+  void scrollToIndex(int season, int episode) {
+    if ((episode == int.parse(clsDetailTvShows!.numEpisode!) - 1) &&
+        (int.parse(clsDetailTvShows!.idSeason!) - 1 == season)) {
+      scrollController.animateTo(
+        45 * double.parse(clsDetailTvShows!.numEpisode!),
+        duration: const Duration(seconds: 1),
+        curve: Curves.ease,
+      );
+    }
+  }
+
+// Función para calcular el color de fondo
+  Color calculateBackgroundColor(int season, int episode) {
+    return (episode == int.parse(clsDetailTvShows!.numEpisode!) - 1) &&
+            (int.parse(clsDetailTvShows!.idSeason!) - 1 == season)
+        ? Const.colorCoralAccent
+        : Colors.transparent;
+  }
 
   Widget buildDrawer(double screenWidth) {
     return Drawer(
@@ -292,8 +325,6 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                                               ),
                                               onTap: () {
                                                 setState(() {
-                                                  appBarTitle =
-                                                      const Text("CATCH UP");
                                                   titleCategory = "CATCH UP";
                                                   futureChannels =
                                                       viewModelTvLive
@@ -322,8 +353,6 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                                               ),
                                               onTap: () {
                                                 setState(() {
-                                                  appBarTitle =
-                                                      const Text("FAVORITE");
                                                   titleCategory = "FAVORITE";
                                                   futureChannels = viewModelTvLive
                                                       .allChannelsFavorites();
@@ -347,8 +376,6 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                                               ),
                                               onTap: () {
                                                 setState(() {
-                                                  appBarTitle = const Text(
-                                                      "TODOS LOS CANALES");
                                                   titleCategory =
                                                       "TODOS LOS CANALES";
                                                   futureChannels =
@@ -384,8 +411,6 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                                               setState(() {
                                                 titleCategory =
                                                     item.categoryName;
-                                                appBarTitle =
-                                                    Text(item.categoryName);
                                                 idCategorySearch =
                                                     item.categoryId;
                                                 futureChannels =
@@ -556,33 +581,182 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
         children: [
           // Primera columna con la flecha de regreso y el título de la temporada
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            color: Const.colorPurpleLight,
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: Row(
               children: [
                 IconButton(
+                  iconSize: 40,
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: const Icon(Icons.arrow_back,
-                      size: 30, color: Colors.white),
+                  icon: const Icon(Icons.chevron_left, color: Colors.white),
                 ),
                 Expanded(
                   child: Wrap(
                     children: [
-                      Text(
-                        tvShowName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 23,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      Text(clsTvShows.titleTvShow!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Const.fontTitleTextStyle),
                     ],
                   ),
                 ),
               ],
+            ),
+          ),
+          //TEMPORADAS Y EPISODIOS
+          Expanded(
+            child: FutureBuilder<ClsDetailTvShows>(
+              future: futureDetailTvShows,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  ClsDetailTvShows detailTvShows = snapshot.data!;
+                  return DefaultTabController(
+                    initialIndex: int.parse(clsDetailTvShows!.idSeason!) - 1,
+                    length: detailTvShows.seasonsTvShows?.length ?? 0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          color: Colors.black,
+                          width: double.infinity,
+                          child: TabBar(
+                            isScrollable: true,
+                            tabs: detailTvShows.seasonsTvShows!.map((season) {
+                              return Tab(
+                                child: Text(
+                                  season.nameSeason ?? '',
+                                  style: Const.fontSubtitleTextStyle,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        Expanded(
+                            child: TabBarView(
+                          children: detailTvShows.seasonsTvShows?.map((season) {
+                                // Verifica si hay episodios para la temporada actual
+                                List<ClsEpisodeTvShow?>? episodes =
+                                    detailTvShows
+                                        .episodesTvShows?[season.numberSeason];
+
+                                return ListView.builder(
+                                  controller: scrollController,
+                                  addAutomaticKeepAlives: true,
+                                  // itemExtent: 80,
+                                  itemCount: episodes?.length ?? 0,
+                                  itemBuilder: (context, index) {
+                                    ClsEpisodeTvShow episode =
+                                        episodes![index]!;
+
+                                    return FutureBuilder<TMDBDetailTvShows>(
+                                      future: viewModelSeries.getAllDataEpisode(
+                                          tvShowIdTmdb,
+                                          int.parse(episode.idSeason!),
+                                          int.parse(episode.numEpisode!)),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                            child: SizedBox(
+                                              width: 50,
+                                              height: 50,
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          );
+                                        } else {
+                                          final detailTvShowsTMDB =
+                                              snapshot.data;
+                                          final episodeTitle =
+                                              detailTvShowsTMDB!
+                                                      .nametitle.isNotEmpty
+                                                  ? detailTvShowsTMDB.nametitle
+                                                  : episode.titleEpisode ?? '';
+                                          final episodeOverview =
+                                              detailTvShowsTMDB
+                                                      .overview.isNotEmpty
+                                                  ? detailTvShowsTMDB.overview
+                                                  : episode.infoEpisode!
+                                                          .plotEpisode ??
+                                                      '';
+                                          // Cambia el color solo para el segundo elemento
+                                          int seasonIndex =
+                                              DefaultTabController.of(context)
+                                                  .index;
+                                          debugPrint("AAAAAA $seasonIndex");
+                                          scrollToIndex(seasonIndex, index);
+                                          return Column(
+                                            children: [
+                                              ListTile(
+                                                tileColor:
+                                                    calculateBackgroundColor(
+                                                        seasonIndex, index),
+                                                onTap: () {
+                                                  // Actualiza el episodio
+                                                },
+                                                title: Text(
+                                                  episodeTitle,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: Const
+                                                      .fontSubtitleTextStyle,
+                                                ),
+                                                subtitle: Text(
+                                                  episodeOverview,
+                                                  maxLines: 3,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                      color: Colors.white70),
+                                                ),
+                                              ),
+                                              // Altura del divisor // Color del divisor
+                                              const Divider(
+                                                height: 1,
+                                                color: Colors.grey,
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                      },
+                                    );
+                                  },
+                                );
+                              }).toList() ??
+                              [],
+                        )),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.search_off,
+                        color: Colors.white,
+                        size: 50,
+                      ),
+                      Text(
+                        'No data available',
+                        style: Const.fontHeaderTextStyle,
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
           ),
         ],
@@ -681,7 +855,7 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
     );
   }
 
-  Widget buildScaffoldMoviesSeries() {
+  Widget buildScaffoldMoviesSeries(bool isPlaying) {
     return Stack(
       children: [
         //BOTONES DE DOBLE TAP ADELANTAR
@@ -744,96 +918,16 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                   backgroundColor: Colors.transparent,
                   elevation: 0.0,
                   title: appBarTitle,
+                  leading: IconButton(
+                    iconSize: 40,
+                    icon: const Icon(Icons.chevron_left),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                   actions: [
-                    Visibility(
-                      visible: isTvShow,
-                      child: IconButton(
-                        iconSize: 40,
-                        onPressed: () {
-                          _pause();
-                          _scaffoldKey.currentState!.openEndDrawer();
-                        },
-                        icon: const Icon(
-                          Icons.format_list_bulleted,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    Stack(
-                      children: [
-                        IconButton(
-                          tooltip: 'Get Subtitle Tracks',
-                          iconSize: 40,
-                          onPressed: getSubtitleTracks,
-                          icon: const Icon(
-                            Icons.closed_caption,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Positioned(
-                          top: 8.0,
-                          right: 8.0,
-                          child: IgnorePointer(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Const.colorPurpleMedium,
-                                borderRadius: BorderRadius.circular(1),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 1,
-                                horizontal: 2,
-                              ),
-                              child: Text(
-                                '$numberOfCaptions',
-                                style: const TextStyle(
-                                  color: Const.colorWhite,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Stack(
-                      children: [
-                        IconButton(
-                          tooltip: 'Get Audio Tracks',
-                          iconSize: 40,
-                          onPressed: getAudioTracks,
-                          icon: const Icon(
-                            Icons.audiotrack,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Positioned(
-                          top: 8.0,
-                          right: 8.0,
-                          child: IgnorePointer(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Const.colorPurpleMedium,
-                                borderRadius: BorderRadius.circular(1),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 1,
-                                horizontal: 2,
-                              ),
-                              child: Text(
-                                '$numberOfAudioTracks',
-                                style: const TextStyle(
-                                  color: Const.colorWhite,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                     IconButton(
+                      tooltip: 'Get Cast Devices',
                       iconSize: 40,
                       onPressed: getCastDevices,
                       icon: const Icon(
@@ -842,6 +936,7 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                       ),
                     ),
                     IconButton(
+                      tooltip: 'Change Aspect Ratio',
                       iconSize: 40,
                       onPressed: () {
                         changeAspectRatio(context);
@@ -861,75 +956,134 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
           endDrawer: isTvShow ? buildEndDrawer() : null,
           onEndDrawerChanged: (isOpened) => _handleDrawer(isOpened),
           drawerScrimColor: Colors.transparent,
-          endDrawerEnableOpenDragGesture: false,
+          //endDrawerEnableOpenDragGesture: false,
           body: Visibility(
             visible: showsControls,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                //TOP BAR
-                Flexible(
-                  flex: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(25, 0, 25, 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Transform.translate(
-                            offset: const Offset(0, 15),
-                            child: FittedBox(
+            child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  //BARRA DE PROGRESO
+                  Flexible(
+                    child: SizedBox(
+                      height: 5,
+                      child: Slider(
+                        activeColor: Const.colorPurpleLight,
+                        inactiveColor: Colors.white70,
+                        value: sliderValue,
+                        min: 0.0,
+                        max: (!validPosition)
+                            ? 1.0
+                            : _controller.value.duration.inSeconds.toDouble(),
+                        onChanged:
+                            validPosition ? _onSliderPositionChanged : null,
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 25, right: 25),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Flexible(
                               child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              //BOTONES DE VLC
+                              Visibility(
+                                visible: isTvShow,
+                                child: IconButton(
+                                  tooltip: "Previous Episode",
+                                  iconSize: 30,
+                                  onPressed: previousEpisode,
+                                  icon: const Icon(
+                                    Icons.skip_previous,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: "Rewind 10 Seconds",
+                                iconSize: 30,
+                                onPressed: () =>
+                                    _seekRelative(_seekStepBackward),
+                                icon: const Icon(
+                                  Icons.replay_10,
+                                  color: Colors.white,
+                                ),
+                              ),
+
+                              IconButton(
+                                tooltip: isPlaying ? "Pause" : "Play",
+                                iconSize: 40,
+                                onPressed: isPlaying ? _pause : _play,
+                                icon: Icon(
+                                  isPlaying ? Icons.pause : Icons.play_arrow,
+                                  color: Colors.white,
+                                ),
+                              ),
+
+                              IconButton(
+                                tooltip: "Forward 10 Seconds",
+                                iconSize: 30,
+                                onPressed: () =>
+                                    _seekRelative(_seekStepForward),
+                                icon: const Icon(
+                                  Icons.forward_10,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Visibility(
+                                visible: isTvShow,
+                                child: IconButton(
+                                  tooltip: "Next Episode",
+                                  iconSize: 30,
+                                  onPressed: nextEpisode,
+                                  icon: const Icon(
+                                    Icons.skip_next,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              //TIEMPO Y DURACION DE LA PELICULA
+                              Text('$position / $duration',
+                                  style: Const.fontBodyTextStyle),
+                            ],
+                          )),
+                          //BOTONES
+                          Visibility(
+                            visible: numberOfAudioTracks > 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: Stack(
                                 children: [
-                                  Visibility(
-                                    visible: isTvShow,
-                                    child: IconButton(
-                                      iconSize: 50,
-                                      onPressed: previousEpisode,
-                                      icon: const Icon(
-                                        Icons.skip_previous,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    iconSize: 50,
-                                    onPressed: () =>
-                                        _seekRelative(_seekStepBackward),
-                                    icon: const Icon(
-                                      Icons.replay_10,
+                                  MaterialButton(
+                                    minWidth: 50,
+                                    onPressed: getAudioTracks,
+                                    color: Const.colorPurpleLight,
+                                    child: const Icon(
+                                      Icons.audiotrack,
                                       color: Colors.white,
+                                      size: 30,
                                     ),
                                   ),
-                                  IconButton(
-                                    iconSize: 70,
-                                    onPressed: _pause,
-                                    icon: const Icon(
-                                      Icons.pause,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    iconSize: 50,
-                                    onPressed: () =>
-                                        _seekRelative(_seekStepForward),
-                                    icon: const Icon(
-                                      Icons.forward_10,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: isTvShow,
-                                    child: IconButton(
-                                      iconSize: 50,
-                                      onPressed: nextEpisode,
-                                      icon: const Icon(
-                                        Icons.skip_next,
-                                        color: Colors.white,
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Const.colorCoralAccent,
+                                          borderRadius:
+                                              BorderRadius.circular(1),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                          horizontal: 4,
+                                        ),
+                                        child: Text('$numberOfAudioTracks',
+                                            style: Const.fontSmallTextStyle),
                                       ),
                                     ),
                                   ),
@@ -937,50 +1091,68 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                               ),
                             ),
                           ),
-                        ),
-                        Flexible(
-                            child: Column(
-                          children: [
-                            SizedBox(
-                              height: 20,
-                              child: Slider(
-                                activeColor:
-                                    const Color.fromARGB(255, 89, 40, 202),
-                                inactiveColor: Colors.white70,
-                                value: sliderValue,
-                                min: 0.0,
-                                max: (!validPosition)
-                                    ? 1.0
-                                    : _controller.value.duration.inSeconds
-                                        .toDouble(),
-                                onChanged: validPosition
-                                    ? _onSliderPositionChanged
-                                    : null,
+
+                          Visibility(
+                            visible: numberOfCaptions > 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: Stack(
+                                children: [
+                                  MaterialButton(
+                                    minWidth: 50,
+                                    onPressed: getSubtitleTracks,
+                                    color: Const.colorPurpleLight,
+                                    child: const Icon(
+                                      Icons.closed_caption,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Const.colorCoralAccent,
+                                          borderRadius:
+                                              BorderRadius.circular(1),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                          horizontal: 4,
+                                        ),
+                                        child: Text('$numberOfCaptions',
+                                            style: Const.fontSmallTextStyle),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Text(
-                                  position,
-                                  style: const TextStyle(color: Colors.white),
+                          ),
+                          Visibility(
+                            visible: isTvShow,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: MaterialButton(
+                                color: Const.colorPurpleLight,
+                                onPressed: () async {
+                                  _pause();
+                                  _scaffoldKey.currentState!.openEndDrawer();
+                                },
+                                child: const Text(
+                                  'Episodes',
+                                  style: Const.fontBodyTextStyle,
                                 ),
-                                Text(
-                                  duration,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ],
+                              ),
                             ),
-                          ],
-                        )),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ),
+                  )
+                ])),
           ),
         ),
       ],
@@ -1059,311 +1231,53 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                 child: Lottie.asset(Const.aniLoading, height: 100),
               );
             case PlayingState.paused:
-              if (showsControls) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      showsControls = !showsControls;
-                    });
-                  },
-                  onDoubleTap: () {},
-                  onDoubleTapDown: (details) {
-                    final touchPositionX = details.localPosition.dx;
-                    setState(() {
-                      // Determinar si el toque está en la mitad izquierda o derecha de la pantalla
-                      if (touchPositionX < halfScreenWidth) {
-                        // Lógica para retroceder en el video
-                        isBackwardTap = true;
-                        isForwardTap = false;
-                        _seekRelative(_seekStepBackward);
-                      } else {
-                        // Lógica para avanzar en el video
-                        isBackwardTap = false;
-                        isForwardTap = true;
-                        _seekRelative(_seekStepForward);
-                      }
-                      showVideoNavigationIcon = true;
-                    });
-                    Future.delayed(const Duration(milliseconds: 750), () {
-                      setState(() {
-                        showVideoNavigationIcon = false;
-                        isBackwardTap = false;
-                        isForwardTap = false;
-                      });
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      //BOTONES DE DOBLE TAP ADELANTAR
-                      AnimatedOpacity(
-                        opacity: showVideoNavigationIcon ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 750),
-                        curve: Curves.decelerate,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: isBackwardTap
-                                  ? ClipRRect(
-                                      borderRadius:
-                                          const BorderRadius.horizontal(
-                                        right: Radius.elliptical(250, 500),
-                                      ),
-                                      child: Container(
-                                        color: Colors.white54,
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.replay_10,
-                                            color: Colors.white,
-                                            size: 80,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                            const Spacer(),
-                            Expanded(
-                              flex: 2,
-                              child: isForwardTap
-                                  ? ClipRRect(
-                                      borderRadius:
-                                          const BorderRadius.horizontal(
-                                        left: Radius.elliptical(250, 500),
-                                      ),
-                                      child: Container(
-                                        color: Colors.white54,
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.forward_10,
-                                            color: Colors.white,
-                                            size: 80,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Scaffold(
-                        key: _scaffoldKey,
-                        backgroundColor: Colors.transparent,
-                        appBar: showsControls
-                            ? AppBar(
-                                automaticallyImplyLeading: false,
-                                backgroundColor: Colors.transparent,
-                                elevation: 0.0,
-                                title: appBarTitle,
-                                actions: [
-                                  Visibility(
-                                    visible: isTvShow,
-                                    child: IconButton(
-                                      iconSize: 40,
-                                      onPressed: () {
-                                        _pause();
-                                        _scaffoldKey.currentState!
-                                            .openEndDrawer();
-                                      },
-                                      icon: const Icon(
-                                        Icons.format_list_bulleted,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    iconSize: 40,
-                                    onPressed: getSubtitleTracks,
-                                    icon: const Icon(
-                                      Icons.closed_caption,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    iconSize: 40,
-                                    onPressed: getAudioTracks,
-                                    icon: const Icon(
-                                      Icons.audiotrack,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    iconSize: 40,
-                                    onPressed: getCastDevices,
-                                    icon: const Icon(
-                                      Icons.cast,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    iconSize: 40,
-                                    onPressed: () {
-                                      changeAspectRatio(context);
-                                    },
-                                    icon: const Icon(
-                                      Icons.aspect_ratio,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : PreferredSize(
-                                preferredSize: const Size.fromHeight(0),
-                                child: Container(),
-                              ),
-                        extendBodyBehindAppBar: true,
-                        endDrawer: isTvShow ? buildEndDrawer() : null,
-                        onEndDrawerChanged: (isOpened) =>
-                            _handleDrawer(isOpened),
-                        drawerScrimColor: Colors.transparent,
-                        endDrawerEnableOpenDragGesture: false,
-                        body: Visibility(
-                          visible: showsControls,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              //TOP BAR
-                              Flexible(
-                                flex: 0,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(25, 0, 25, 10),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(
-                                        child: Transform.translate(
-                                          offset: const Offset(0, 15),
-                                          child: FittedBox(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              children: [
-                                                Visibility(
-                                                  visible: isTvShow,
-                                                  child: IconButton(
-                                                    iconSize: 50,
-                                                    onPressed: previousEpisode,
-                                                    icon: const Icon(
-                                                      Icons.skip_previous,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  iconSize: 50,
-                                                  onPressed: () =>
-                                                      _seekRelative(
-                                                          _seekStepBackward),
-                                                  icon: const Icon(
-                                                    Icons.replay_10,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  iconSize: 70,
-                                                  onPressed: _play,
-                                                  icon: const Icon(
-                                                    Icons.play_arrow,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  iconSize: 50,
-                                                  onPressed: () =>
-                                                      _seekRelative(
-                                                          _seekStepForward),
-                                                  icon: const Icon(
-                                                    Icons.forward_10,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Visibility(
-                                                  visible: isTvShow,
-                                                  child: IconButton(
-                                                    iconSize: 50,
-                                                    onPressed: nextEpisode,
-                                                    icon: const Icon(
-                                                      Icons.skip_next,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Flexible(
-                                          child: Column(
-                                        children: [
-                                          SizedBox(
-                                            height: 20,
-                                            child: Slider(
-                                              activeColor: const Color.fromARGB(
-                                                  255, 89, 40, 202),
-                                              inactiveColor: Colors.white70,
-                                              value: sliderValue,
-                                              min: 0.0,
-                                              max: (!validPosition)
-                                                  ? 1.0
-                                                  : _controller
-                                                      .value.duration.inSeconds
-                                                      .toDouble(),
-                                              onChanged: validPosition
-                                                  ? _onSliderPositionChanged
-                                                  : null,
-                                            ),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Text(
-                                                position,
-                                                style: const TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                              Text(
-                                                duration,
-                                                style: const TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      )),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            case PlayingState.playing:
-              final double widthScreen = MediaQuery.of(context).size.width;
               return GestureDetector(
                 onTap: () {
                   setState(() {
                     showsControls = !showsControls;
                   });
                 },
+                onDoubleTap: () {},
+                onDoubleTapDown: (details) {
+                  final touchPositionX = details.localPosition.dx;
+                  setState(() {
+                    // Determinar si el toque está en la mitad izquierda o derecha de la pantalla
+                    if (touchPositionX < halfScreenWidth) {
+                      // Lógica para retroceder en el video
+                      isBackwardTap = true;
+                      isForwardTap = false;
+                      _seekRelative(_seekStepBackward);
+                    } else {
+                      // Lógica para avanzar en el video
+                      isBackwardTap = false;
+                      isForwardTap = true;
+                      _seekRelative(_seekStepForward);
+                    }
+                    showVideoNavigationIcon = true;
+                  });
+                  Future.delayed(const Duration(milliseconds: 750), () {
+                    setState(() {
+                      showVideoNavigationIcon = false;
+                      isBackwardTap = false;
+                      isForwardTap = false;
+                    });
+                  });
+                },
+                child: buildScaffoldMoviesSeries(false),
+              );
+
+            case PlayingState.playing:
+              final double widthScreen = MediaQuery.of(context).size.width;
+              return GestureDetector(
+                onTap: !simplifiedTV
+                    ? () {
+                        setState(() {
+                          showsControls = !showsControls;
+                        });
+                      }
+                    : null,
                 onDoubleTap: () {
-                  !simplifiedTV
-                      ? _scaffoldKey.currentState?.openDrawer()
-                      : null;
+                  isTvLive ? _scaffoldKey.currentState?.openDrawer() : null;
                 },
                 onDoubleTapDown: !isTvLive
                     ? (details) {
@@ -1392,14 +1306,23 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                         });
                       }
                     : (details) {},
-                child: isTvLive
+                child: isTvLive || simplifiedTV
                     ? buildScaffoldTvLive(widthScreen)
-                    : buildScaffoldMoviesSeries(),
+                    : buildScaffoldMoviesSeries(true),
               );
 
             case PlayingState.ended:
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pop(context);
+                if (isTvShow) {
+                  var x = clsDetailTvShows;
+                  nextEpisode().whenComplete(() {
+                    if (clsDetailTvShows == x) {
+                      Navigator.pop(context);
+                    }
+                  });
+                } else {
+                  Navigator.pop(context);
+                }
               });
               return Container();
             case PlayingState.error:
@@ -1430,7 +1353,6 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
             default:
               return const SizedBox.shrink();
           }
-          return const SizedBox.shrink();
         },
       ),
     );
@@ -1530,7 +1452,7 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
     //
     if (audioTracks.isNotEmpty) {
       if (!mounted) return;
-      final int selectedAudioTrackId = await showDialog(
+      final int? selectedAudioTrackId = await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -1545,7 +1467,7 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
                     title: Text(
                       index < audioTracks.keys.length
                           ? audioTracks.values.elementAt(index).toString()
-                          : 'Disable',
+                          : audioTracks.keys.length.toString(),
                     ),
                     onTap: () {
                       Navigator.pop(
@@ -1562,7 +1484,7 @@ class _ControlsVideoPlayerState extends State<ControlsVideoPlayer> {
           );
         },
       );
-      await _controller.setAudioTrack(selectedAudioTrackId);
+      await _controller.setAudioTrack(selectedAudioTrackId!);
     }
   }
 
