@@ -1,8 +1,10 @@
+import 'package:app_movil_iptv/data/models/controls_videoplayer.dart';
 import 'package:app_movil_iptv/data/models/movies.dart';
 import 'package:app_movil_iptv/data/models/tmdb/tmdb_movies.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/viewmodels/movies_viewmodel.dart';
 import 'package:app_movil_iptv/views/widgets/trailer_video.dart';
+import 'package:app_movil_iptv/views/widgets/video/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -265,6 +267,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                       onPressed: () {
                                         viewModelMovies
                                             .addToCatchUp(widget.clsMovies);
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => VideoPlayer(
+                                                url: widget.clsMovies.urlMovie!,
+                                                controls:
+                                                    ClsControlsVideoPlayer(
+                                                        videoType:
+                                                            VideoType.movie,
+                                                        clsMovies:
+                                                            widget.clsMovies),
+                                              ),
+                                            ));
                                       }, //VER PELICULA REPRODUCTOR
                                       color: Const.colorPurpleMedium,
                                       shape: RoundedRectangleBorder(
@@ -304,6 +319,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                       onPressed: () {
                                         viewModelMovies
                                             .addToCatchUp(widget.clsMovies);
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => VideoPlayer(
+                                                url: widget.clsMovies.urlMovie!,
+                                                controls:
+                                                    ClsControlsVideoPlayer(
+                                                        videoType:
+                                                            VideoType.movie,
+                                                        clsMovies:
+                                                            widget.clsMovies),
+                                              ),
+                                            ));
                                       }, //VER PELICULA REPRODUCTOR
                                       color: Const.colorPurpleMedium,
                                       shape: RoundedRectangleBorder(
