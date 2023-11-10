@@ -1,10 +1,12 @@
 import 'package:app_movil_iptv/data/models/channel.dart';
+import 'package:app_movil_iptv/data/models/controls_videoplayer.dart';
 import 'package:app_movil_iptv/utils/consts.dart';
 import 'package:app_movil_iptv/utils/globals.dart';
 import 'package:app_movil_iptv/utils/routes/routes_name.dart';
 import 'package:app_movil_iptv/views/widgets/carrusel_estrenos.dart';
 import 'package:app_movil_iptv/views/widgets/main_appbar.dart';
 import 'package:app_movil_iptv/views/widgets/material_buttom.dart';
+import 'package:app_movil_iptv/views/widgets/video/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -140,14 +142,70 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
+
                         //REPRODUCTOR DE VIDEO
                         Expanded(
                           child: Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                '${Globals.channelUrl?.nameChannel ?? 'Unknown Channel'} ---------- $isPlaying',
-                                style: Const.fontBodyTextStyle,
-                              )),
+                            padding: const EdgeInsets.all(10),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: FutureBuilder<ClsChannel>(
+                                future: futureChannelGlobal,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                        child: SizedBox(
+                                      width: 50,
+                                      height: 50,
+                                      child: CircularProgressIndicator(),
+                                    ));
+                                  } else {
+                                    var channel = snapshot.data;
+                                    if (isPlaying) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            isPlaying = false;
+                                          });
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => VideoPlayer(
+                                                url: channel.urlChannel!,
+                                                controls: ClsControlsVideoPlayer(
+                                                    videoType:
+                                                        VideoType.tvChannel,
+                                                    clsChannel: channel,
+                                                    updateFutureChannelGlobal:
+                                                        updateFutureChannel),
+                                              ),
+                                            ),
+                                          ).then((value) {
+                                            setState(() {
+                                              isPlaying = true;
+                                            });
+                                          });
+                                        },
+                                        child: VideoPlayer(
+                                          url: channel!.urlChannel!,
+                                          controls: ClsControlsVideoPlayer(
+                                            videoType: VideoType.simplifiedTV,
+                                            clsChannel: channel,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return Container(
+                                        padding: const EdgeInsets.all(10),
+                                        color: Colors.black,
+                                      ); // No muestra el VideoPlayer
+                                    }
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
