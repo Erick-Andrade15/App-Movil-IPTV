@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class ClsDetailTvShows {
   List<ClsSeasonTvShow>? seasonsTvShows;
   //final ClsTvShows? infoTvShows;
@@ -116,7 +118,8 @@ class ClsEpisodeTvShow {
         idEpisode: json['id'].toString(),
         idSeason: json['season'].toString(),
         numEpisode: json['episode_num'].toString(),
-        titleEpisode: json['title'].toString(),
+        titleEpisode: decodeTitle(json['title']),
+        //titleEpisode: json['title'].toString(),
         urlEpisode: json['url'].toString(),
         extensionUrl: json['container_extension'].toString(),
         infoEpisode: json['info'] != null && json['info'].runtimeType != List
@@ -179,4 +182,14 @@ class InfoEpisode {
         // 'duration': duration,
         // 'bitrate': bitrate
       };
+}
+
+//DECODIFICAR UTF8 - TILDES Y CARACTERES ESPECIALES
+String decodeTitle(String title) {
+  try {
+    return utf8.decode(latin1.encode(title));
+  } catch (e) {
+    // Manejar la excepción, por ejemplo, devolver una cadena vacía o el título original
+    return title;
+  }
 }
