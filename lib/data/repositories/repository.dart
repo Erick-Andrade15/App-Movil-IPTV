@@ -186,7 +186,7 @@ class Repository {
       for (var channel in channels) {
         // Construir la URL completa
         channel.urlChannel =
-            '${sessionUserData.serverInfo?.serverProtocol}://${sessionUserData.serverInfo?.url}:${sessionUserData.serverInfo?.port}/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.username}/${channel.idChannel}';
+            '${sessionUserData.serverInfo?.serverProtocol}://${sessionUserData.serverInfo?.url}:${sessionUserData.serverInfo?.port}/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.password}/${channel.idChannel}';
         // '${sessionUserData.serverInfo?.url}/${sessionUserData.userInfo?.username}/${sessionUserData.userInfo?.username}/${channel.idChannel}';
       }
 
@@ -218,9 +218,16 @@ class Repository {
       List<dynamic> jsonData =
           json.decode(await apiServices.getResponse(url, parametersQuery));
       //var list = jsonData.map((e) => ClsChannel.fromJson(e)).toList();
-
-      List<ClsMovies> movies =
-          jsonData.map((e) => ClsMovies.fromJson(e)).toList();
+      List<ClsMovies> movies = jsonData
+          .map((e) {
+            if (e["name"] == null || e["title"] == null) {
+              return null;
+            }
+            return ClsMovies.fromJson(e);
+          })
+          .where((movie) => movie != null)
+          .cast<ClsMovies>() // Realiza un cast para quitar los nulos
+          .toList();
 
       // Modificar el campo urlStreamId
       for (var movie in movies) {
