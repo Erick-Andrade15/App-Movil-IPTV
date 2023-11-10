@@ -135,7 +135,6 @@ class _MoviesPageState extends State<MoviesPage> {
                       switch (titleCategory) {
                         case 'FAVORITE':
                           futureMovies = viewModelMovies.allMoviesFavorites();
-
                           break;
                         case 'CATCH UP':
                           futureMovies = viewModelMovies.allMoviesCatchUp();
