@@ -137,15 +137,12 @@ class _TvLivePageState extends State<TvLivePage> {
                   ));
                 } else {
                   var channel = snapshot.data;
-                  return Container(
-                    color: Colors.black,
-                    child: VideoPlayer(
+                  return VideoPlayer(
                     url: channel!.urlChannel!,
                     controls: ClsControlsVideoPlayer(
                         videoType: VideoType.tvChannel,
                         clsChannel: channel,
                         updateFutureChannelGlobal: updateFutureChannel),
-                  ),
                   );
                 }
               },
@@ -555,6 +552,14 @@ class _TvLivePageState extends State<TvLivePage> {
                                                       TextOverflow.ellipsis,
                                                 ),
                                                 onTap: () {
+                                                  final snackBar = SnackBar(
+                                                      content: Text(
+                                                          channels[index]
+                                                                  .urlChannel ??
+                                                              ''));
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(snackBar);
+
                                                   //AGREGAR AL CATCHUP
                                                   viewModelTvLive.addToCatchUp(
                                                       channels[index]);
